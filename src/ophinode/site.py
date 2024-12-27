@@ -263,8 +263,8 @@ class Site:
             root_node = context.page_nodes[path]
             render_result = root_node.render(context)
             target_path = pathlib.Path(self.root_path) / path.lstrip('/')
-            if path.endswith('/'):
-                target_path /= "index.html"
+            if not path.endswith(self.page_output_file_extension):
+                target_path /= self.default_page_output_filename
             target_directory = target_path.parent
             if not target_directory.exists():
                 target_directory.mkdir(parents=True)
