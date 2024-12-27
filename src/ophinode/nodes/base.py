@@ -24,11 +24,10 @@ class Preparable(ABC):
     def prepare(self, context: "ophinode.rendering.RenderContext"):
         pass
 
-class Page(ABC):
+class Page:
     @property
-    @abstractmethod
     def layout(self):
-        pass
+        return None
 
 class Layout(ABC):
     @abstractmethod
