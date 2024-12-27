@@ -89,6 +89,13 @@ class Site:
             raise TypeError("default_layout must be a Layout")
         self._options[DEFAULT_LAYOUT_OPTION_KEY] = default_layout
 
+    @property
+    def default_layout(self) -> Union[Layout, None]:
+        return self._options.get(
+            DEFAULT_LAYOUT_OPTION_KEY,
+            DEFAULT_LAYOUT_OPTION_DEFAULT_VALUE
+        )
+
     def add_preprocessor(
         self,
         preprocessor: Callable[["RenderContext"], None]
