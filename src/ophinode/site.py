@@ -146,13 +146,14 @@ class Site:
         return RenderContext(self)
 
     def _build_nodes(self, page: Page, context: RenderContext) -> Iterable:
+        layout = None
         if isinstance(page, Page):
             layout = page.layout
             l_src = "layout property of page"
-        elif "default_layout" in self._options:
-            layout = self._options["default_layout"]
+        if not layout:
+            layout = self.default_layout
             l_src = "default_layout option of renderer"
-        else:
+        if not layout:
             layout = HTML5Layout()
             l_src = "fallback layout (HTML5Layout)"
 
