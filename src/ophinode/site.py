@@ -69,6 +69,10 @@ class Site:
                 self.set_root_path(v)
             elif k == DEFAULT_LAYOUT_OPTION_KEY:
                 self.set_default_layout(v)
+            elif k == DEFAULT_PAGE_OUTPUT_FILENAME_OPTION_KEY:
+                self.set_default_page_output_filename(v)
+            elif k == PAGE_OUTPUT_FILE_EXTENSION_OPTION_KEY:
+                self.set_page_output_file_extension(v)
             elif not ignore_invalid_keys:
                 raise ValueError("unknown option key: {}".format(k))
 
@@ -94,6 +98,40 @@ class Site:
         return self._options.get(
             DEFAULT_LAYOUT_OPTION_KEY,
             DEFAULT_LAYOUT_OPTION_DEFAULT_VALUE
+        )
+
+    def set_default_page_output_filename(
+        self,
+        default_page_output_filename: str
+    ):
+        if not isinstance(default_page_output_filename, str):
+            raise TypeError("default_page_output_filename must be a str")
+        self._options[
+            DEFAULT_PAGE_OUTPUT_FILENAME_OPTION_KEY
+        ] = default_page_output_filename
+
+    @property
+    def default_page_output_filename(self) -> str:
+        return self._options.get(
+            DEFAULT_PAGE_OUTPUT_FILENAME_OPTION_KEY,
+            DEFAULT_PAGE_OUTPUT_FILENAME_OPTION_DEFAULT_VALUE
+        )
+
+    def set_page_output_file_extension(
+        self,
+        page_output_file_extension: str
+    ):
+        if not isinstance(page_output_file_extension, str):
+            raise TypeError("page_output_file_extension must be a str")
+        self._options[
+            PAGE_OUTPUT_FILE_EXTENSION_OPTION_KEY
+        ] = page_output_file_extension
+
+    @property
+    def page_output_file_extension(self) -> str:
+        return self._options.get(
+            PAGE_OUTPUT_FILE_EXTENSION_OPTION_KEY,
+            PAGE_OUTPUT_FILE_EXTENSION_OPTION_DEFAULT_VALUE
         )
 
     def add_preprocessor(
