@@ -86,6 +86,10 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
     def render_end(self, context: "ophinode.rendering.RenderContext"):
         return "</{}>".format(self.tag)
 
+    @property
+    def auto_newline(self):
+        return self.display != "inline"
+
 class ClosedElement(Element, ClosedRenderable):
     tag = "meta"
 

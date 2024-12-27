@@ -14,6 +14,10 @@ class OpenRenderable(ABC):
     def render_end(self, context: "ophinode.rendering.RenderContext"):
         pass
 
+    @property
+    def auto_newline(self):
+        return False
+
 class Expandable(ABC):
     @abstractmethod
     def expand(self, context: "ophinode.rendering.RenderContext"):

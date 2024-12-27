@@ -54,33 +54,78 @@ class RenderNode:
         depth = 0
         stk = collections.deque()
         stk.append((self, False))
+        no_auto_newline_count = 0
+        total_text_content_length = 0
+        text_content_length_stk = collections.deque()
         while stk:
             render_node, revisited = stk.pop()
             v, c = render_node._value, render_node._children
             if isinstance(v, OpenRenderable):
                 if revisited:
-                    depth -= 2
-                    result.append(" "*depth + v.render_end(context))
+                    depth -= 1
+                    if no_auto_newline_count > 0:
+                        text_content = v.render_end(context)
+                    if (
+                        text_content_length_stk
+                        and text_content_length_stk[-1]
+                            == total_text_content_length
+                    ):
+                        text_content = v.render_end(context) + "\n"
+                    else:
+                        text_content = "  "*depth+v.render_end(context)+"\n"
+                    result.append(text_content)
+                    total_text_content_length += len(text_content)
+                    text_content_length_stk.pop()
+                    if not v.auto_newline:
+                        no_auto_newline_count -= 1
+                        if no_auto_newline_count == 0:
+                            result.append("\n")
+                            total_text_content_length += 1
                 else:
-                    result.append(" "*depth + v.render_start(context))
+                    if no_auto_newline_count > 0:
+                        text_content = v.render_start(context)
+                    elif (
+                        text_content_length_stk
+                        and text_content_length_stk[-1]
+                            == total_text_content_length
+                    ):
+                        text_content = "\n"+"  "*depth+v.render_start(context)
+                    else:
+                        text_content = "  "*depth+v.render_start(context)
+                    result.append(text_content)
+                    total_text_content_length += len(text_content)
+                    text_content_length_stk.append(total_text_content_length)
+                    if not v.auto_newline:
+                        no_auto_newline_count += 1
                     stk.append((render_node, True))
-                    depth += 2
+                    depth += 1
                     if c:
                         for i in reversed(c):
                             stk.append((i, False))
             elif isinstance(v, ClosedRenderable):
                 if revisited:
-                    depth -= 2
+                    depth -= 1
                 else:
-                    result.append(" "*depth + v.render(context))
+                    if no_auto_newline_count > 0:
+                        text_content = v.render(context)
+                    elif (
+                        text_content_length_stk
+                        and text_content_length_stk[-1]
+                            == total_text_content_length
+                    ):
+                        text_content = "\n"+"  "*depth+v.render(context)+"\n"
+                    else:
+                        text_content = "  "*depth+v.render(context)+"\n"
+                    result.append(text_content)
+                    total_text_content_length += len(text_content)
                     if c:
                         stk.append((render_node, True))
-                        depth += 2
+                        depth += 1
                         for i in reversed(c):
                             stk.append((i, False))
             elif c:
                 for i in reversed(c):
                     stk.append((i, False))
 
-        return "\n".join(result)
+        return "".join(result)
 
