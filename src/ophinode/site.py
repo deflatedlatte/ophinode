@@ -79,7 +79,10 @@ class Site:
 
     @property
     def root_path(self) -> str:
-        return self._options.get(ROOT_PATH_OPTION_KEY, "")
+        return self._options.get(
+            ROOT_PATH_OPTION_KEY,
+            ROOT_PATH_OPTION_DEFAULT_VALUE
+        )
 
     def set_default_layout(self, default_layout: Layout):
         if not isinstance(default_layout, Layout):
