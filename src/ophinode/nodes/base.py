@@ -18,6 +18,10 @@ class OpenRenderable(ABC):
     def auto_newline(self):
         return False
 
+    @property
+    def auto_indent(self):
+        return False
+
 class Expandable(ABC):
     @abstractmethod
     def expand(self, context: "ophinode.rendering.RenderContext"):

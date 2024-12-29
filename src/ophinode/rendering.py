@@ -55,6 +55,7 @@ class RenderNode:
         stk = collections.deque()
         stk.append((self, False))
         no_auto_newline_count = 0
+        no_auto_indent_count = 0
         total_text_content_length = 0
         text_content_length_stk = collections.deque()
         while stk:
@@ -63,69 +64,91 @@ class RenderNode:
             if isinstance(v, OpenRenderable):
                 if revisited:
                     depth -= 1
-                    if no_auto_newline_count > 0:
-                        text_content = v.render_end(context)
-                    if (
+                    text_content = v.render_end(context)
+                    if not (
                         text_content_length_stk
                         and text_content_length_stk[-1]
                             == total_text_content_length
                     ):
-                        text_content = v.render_end(context) + "\n"
-                    else:
-                        text_content = "  "*depth+v.render_end(context)+"\n"
+                        if (
+                            text_content
+                            and total_text_content_length
+                            and (
+                                no_auto_newline_count == 0
+                                or no_auto_indent_count == 0
+                            )
+                        ):
+                            text_content = "\n" + text_content
+                        if no_auto_indent_count == 0 and text_content:
+                            text_content = ("\n"+"  "*depth).join(
+                                text_content.split("\n")
+                            )
                     result.append(text_content)
                     total_text_content_length += len(text_content)
                     text_content_length_stk.pop()
                     if not v.auto_newline:
                         no_auto_newline_count -= 1
-                        if no_auto_newline_count == 0:
-                            result.append("\n")
-                            total_text_content_length += 1
+                    if not v.auto_indent:
+                        no_auto_indent_count -= 1
                 else:
-                    if no_auto_newline_count > 0:
-                        text_content = v.render_start(context)
-                    elif (
-                        text_content_length_stk
-                        and text_content_length_stk[-1]
-                            == total_text_content_length
+                    text_content = v.render_start(context)
+                    if text_content and (
+                        (
+                            total_text_content_length
+                            and no_auto_newline_count == 0
+                        )
+                        or
+                        (
+                            text_content_length_stk
+                            and text_content_length_stk[-1]
+                                == total_text_content_length
+                            and no_auto_indent_count == 0
+                        )
                     ):
-                        text_content = "\n"+"  "*depth+v.render_start(context)
-                    else:
-                        text_content = "  "*depth+v.render_start(context)
+                        text_content = "\n" + text_content
+                    if no_auto_indent_count == 0 and text_content:
+                        text_content = ("\n"+"  "*depth).join(
+                            text_content.split("\n")
+                        )
                     result.append(text_content)
                     total_text_content_length += len(text_content)
                     text_content_length_stk.append(total_text_content_length)
                     if not v.auto_newline:
                         no_auto_newline_count += 1
+                    if not v.auto_indent:
+                        no_auto_indent_count += 1
                     stk.append((render_node, True))
                     depth += 1
-                    if c:
-                        for i in reversed(c):
-                            stk.append((i, False))
             elif isinstance(v, ClosedRenderable):
                 if revisited:
                     depth -= 1
                 else:
-                    if no_auto_newline_count > 0:
-                        text_content = v.render(context)
-                    elif (
-                        text_content_length_stk
-                        and text_content_length_stk[-1]
-                            == total_text_content_length
+                    text_content = v.render(context)
+                    if text_content and (
+                        (
+                            total_text_content_length
+                            and no_auto_newline_count == 0
+                        )
+                        or
+                        (
+                            text_content_length_stk
+                            and text_content_length_stk[-1]
+                                == total_text_content_length
+                            and no_auto_indent_count == 0
+                        )
                     ):
-                        text_content = "\n"+"  "*depth+v.render(context)+"\n"
-                    else:
-                        text_content = "  "*depth+v.render(context)+"\n"
+                        text_content = "\n" + text_content
+                    if no_auto_indent_count == 0 and text_content:
+                        text_content = ("\n"+"  "*depth).join(
+                            text_content.split("\n")
+                        )
                     result.append(text_content)
                     total_text_content_length += len(text_content)
-                    if c:
-                        stk.append((render_node, True))
-                        depth += 1
-                        for i in reversed(c):
-                            stk.append((i, False))
-            elif c:
+                    stk.append((render_node, True))
+                    depth += 1
+            if not revisited and c:
                 for i in reversed(c):
                     stk.append((i, False))
-
+        result.append("\n")
         return "".join(result)
 

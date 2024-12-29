@@ -63,7 +63,7 @@ class Element(Node):
 
 class OpenElement(Element, OpenRenderable, Expandable, Preparable):
     tag = "div"
-    render_mode = "block"
+    render_mode = "hierarchy"
 
     def __init__(self, *args, **kwargs):
         self.children = list(args)
@@ -88,7 +88,11 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
 
     @property
     def auto_newline(self):
-        return self.render_mode == "block"
+        return self.render_mode == "hierarchy"
+
+    @property
+    def auto_indent(self):
+        return self.render_mode == "phrase" or self.render_mode == "hierarchy"
 
 class ClosedElement(Element, ClosedRenderable):
     tag = "meta"
@@ -210,6 +214,7 @@ Address = AddressElement
 
 class ParagraphElement(OpenElement):
     tag = "p"
+    render_mode = "phrase"
 
 class HorizontalRuleElement(ClosedElement):
     tag = "hr"
