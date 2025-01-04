@@ -9,3 +9,6 @@ class RootPathIsNotADirectoryError(InvalidConfigurationError):
 
 class NonRenderableNodeError(Exception):
     pass
+
+class ExportPathCollisionError(Exception):
+    pass

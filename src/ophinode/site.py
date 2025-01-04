@@ -1,3 +1,4 @@
+import json
 import os.path
 import pathlib
 import collections
@@ -207,10 +208,32 @@ class Site:
 
         return layout.build(page, context)
 
+    def _build_page(self, path, page, context):
+        context._current_page_path = path
+        context._current_page = page
+        context.built_pages[path] = self._build_nodes(page, context)
+        context._current_page = None
+        context._current_page_path = None
+
+    def _build_pages(self, context):
+        for path, page in self._pages:
+            self._build_page(path, page, context)
+
     def _prepare_nodes(self, page_built: Iterable, context: RenderContext):
         for node in page_built:
             if isinstance(node, Preparable):
                 node.prepare(context)
+
+    def _prepare_page(self, path: str, page: Page, context: RenderContext):
+        context._current_page_path = path
+        context._current_page = page
+        self._prepare_nodes(context.built_pages[path], context)
+        context._current_page = None
+        context._current_page_path = None
+
+    def _prepare_pages(self, context: RenderContext):
+        for path, page in self._pages:
+            self._prepare_page(path, page, context)
 
     def _expand_nodes(
         self,
@@ -253,53 +276,70 @@ class Site:
 
         return root_node
 
+    def _expand_page(self, path: str, page: Page, context: RenderContext):
+        context._current_page_path = path
+        context._current_page = page
+        root_node = self._expand_nodes(context.built_pages[path], context)
+        context.expanded_pages[path] = root_node
+        context._current_page = None
+        context._current_page_path = None
+
+    def _expand_pages(self, context: RenderContext):
+        for path, page in self._pages:
+            self._expand_page(path, page, context)
+
+    def _render_page(self, path: str, page: Page, context: RenderContext):
+        context._current_page_path = path
+        context._current_page = page
+        root_node = context.expanded_pages[path]
+        render_result = root_node.render(context)
+        context.rendered_pages[path] = render_result
+        context._current_page = None
+        context._current_page_path = None
+
+    def _render_pages(self, context: RenderContext):
+        for path, page in self._pages:
+            self._render_page(path, page, context)
+
     def _finalize_site(self, context: RenderContext):
+        for path, render_result in context.rendered_pages.items():
+            page_path = path
+            if path.endswith("/"):
+                page_path += self.default_page_output_filename
+            elif not path.endswith(self.page_output_file_extension):
+                page_path += "/" + self.default_page_output_filename
+            if page_path in context.exported_files:
+                raise ExportPathCollisionError(
+                    "attempted to export a page to '{}', but another file is "
+                    "already exported to that path".format(page_path)
+                )
+            context.exported_files[page_path] = render_result
+
         # Run postprocessors
         for postprocessor in self._postprocessors:
             postprocessor(context)
 
-        # Render pages
-        for path, _ in self._pages:
-            root_node = context.page_nodes[path]
-            render_result = root_node.render(context)
+        for path, file_content in context.exported_files.items():
             target_path = pathlib.Path(self.root_path) / path.lstrip('/')
-            if not path.endswith(self.page_output_file_extension):
-                target_path /= self.default_page_output_filename
             target_directory = target_path.parent
             if not target_directory.exists():
                 target_directory.mkdir(parents=True)
-            with target_path.open(mode="w", encoding="utf-8") as f:
-                f.write(render_result)
+            if isinstance(file_content, (bytes, bytearray)):
+                with target_path.open(mode="wb") as f:
+                    f.write(file_content)
+            elif isinstance(file_content, str):
+                with target_path.open(mode="w", encoding="utf-8") as f:
+                    f.write(file_content)
+            else:
+                with target_path.open(mode="w", encoding="utf-8") as f:
+                    json.dump(file_content, f, indent=2)
 
-    def build(self):
+    def build_site(self):
         context = self._prepare_site()
-
-        # Build pages
-        pages_built = {}
-        for path, page in self._pages:
-            context._current_page_path = path
-            context._current_page = page
-            page_built = self._build_nodes(page, context)
-            pages_built[path] = page_built
-            context._current_page_path = None
-            context._current_page = None
-
-        # Prepare pages
-        for path, _ in self._pages:
-            context._current_page_path = path
-            context._current_page = page
-            self._prepare_nodes(pages_built[path], context)
-            context._current_page_path = None
-            context._current_page = None
-
-        # Expand pages
-        for path, _ in self._pages:
-            context._current_page_path = path
-            context._current_page = page
-            root_node = self._expand_nodes(pages_built[path], context)
-            context._page_nodes[path] = root_node
-            context._current_page_path = None
-            context._current_page = None
-
+        self._build_pages(context)
+        self._prepare_pages(context)
+        self._expand_pages(context)
+        self._render_pages(context)
         self._finalize_site(context)
+        return context
 
