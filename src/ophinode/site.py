@@ -20,12 +20,8 @@ class Site:
         self,
         options: Union[dict, None] = None,
         pages: Union[Iterable[Tuple[str, "Page"]], None] = None,
-        preprocessors: Union[
-            Iterable[Callable[["RenderContext"], None]],
-            None
-        ] = None,
-        postprocessors: Union[
-            Iterable[Callable[["RenderContext"], None]],
+        processors: Union[
+            Iterable[Tuple[str, Callable[["RenderContext"], None]]],
             None
         ] = None,
     ):
@@ -44,19 +40,21 @@ class Site:
                 self._pages_dict[path] = page
                 self._pages.append((path, page))
 
-        self._preprocessors = []
+        self._preprocessors_for_site_build = []
+        self._postprocessors_for_site_build = []
+        self._preprocessors_for_page_build_stage = []
+        self._postprocessors_for_page_build_stage = []
+        self._preprocessors_for_page_preparation_stage = []
+        self._postprocessors_for_page_preparation_stage = []
+        self._preprocessors_for_page_expansion_stage = []
+        self._postprocessors_for_page_expansion_stage = []
+        self._preprocessors_for_page_rendering_stage = []
+        self._postprocessors_for_page_rendering_stage = []
         if preprocessors is not None:
             if not isinstance(preprocessors, collections.abc.Iterable):
                 raise TypeError("preprocessors must be an iterable")
-            for preprocessor in preprocessors:
-                self.add_preprocessor(preprocessor)
-
-        self._postprocessors = []
-        if postprocessors is not None:
-            if not isinstance(postprocessors, collections.abc.Iterable):
-                raise TypeError("postprocessors must be an iterable")
-            for postprocessor in postprocessors:
-                self.add_postprocessor(postprocessor)
+            for stage, processor in processors:
+                self.add_processor(stage, processor)
 
     def update_options(
         self,
@@ -135,21 +133,37 @@ class Site:
             PAGE_OUTPUT_FILE_EXTENSION_OPTION_DEFAULT_VALUE
         )
 
-    def add_preprocessor(
+    def add_processor(
         self,
-        preprocessor: Callable[["RenderContext"], None]
+        stage: str,
+        processor: Callable[["RenderContext"], None]
     ):
+        if not isinstance(stage, str):
+            raise ValueError("processor stage must be a str")
         if not callable(preprocessor):
-            raise TypeError("preprocessor must be a callable")
-        self._preprocessors.append(preprocessor)
-
-    def add_postprocessor(
-        self,
-        postprocessor: Callable[["RenderContext"], None]
-    ):
-        if not callable(postprocessor):
-            raise TypeError("postprocessor must be a callable")
-        self._postprocessors.append(postprocessor)
+            raise TypeError("processor must be a callable")
+        if stage == "pre_site_build":
+            self._preprocessors_for_site_build.append(processor)
+        elif stage == "post_site_build":
+            self._postprocessors_for_site_build.append(processor)
+        elif stage == "pre_page_build":
+            self._preprocessors_for_page_build_stage.append(processor)
+        elif stage == "post_page_build":
+            self._postprocessors_for_page_build_stage.append(processor)
+        elif stage == "pre_page_preparation":
+            self._preprocessors_for_page_preparation_stage.append(processor)
+        elif stage == "post_page_preparation":
+            self._postprocessors_for_page_preparation_stage.append(processor)
+        elif stage == "pre_page_expansion":
+            self._preprocessors_for_page_expansion_stage.append(processor)
+        elif stage == "post_page_expansion":
+            self._postprocessors_for_page_expansion_stage.append(processor)
+        elif stage == "pre_page_rendering":
+            self._preprocessors_for_page_rendering_stage.append(processor)
+        elif stage == "post_page_rendering":
+            self._postprocessors_for_page_rendering_stage.append(processor)
+        else:
+            raise ValueError("invalid rendering stage: '{}'".format(stage))
 
     def _prepare_site(self) -> RenderContext:
         # Check if root_path has been set
@@ -178,11 +192,10 @@ class Site:
                 "failed to prepare site because root_path is not a directory"
             )
 
-        # Run site preparation tasks
-        for preprocessor in self._preprocessors:
-            preprocessor(context)
-
-        return RenderContext(self)
+        context = RenderContext(self)
+        for processor in self._preprocessors_for_site_build:
+            processor(context)
+        return context
 
     def _build_nodes(self, page: Page, context: RenderContext) -> Iterable:
         layout = None
@@ -216,8 +229,12 @@ class Site:
         context._current_page_path = None
 
     def _build_pages(self, context):
+        for processor in self._preprocessors_for_page_build_stage:
+            processor(context)
         for path, page in self._pages:
             self._build_page(path, page, context)
+        for processor in self._postprocessors_for_page_build_stage:
+            processor(context)
 
     def _prepare_nodes(self, page_built: Iterable, context: RenderContext):
         for node in page_built:
@@ -232,8 +249,12 @@ class Site:
         context._current_page_path = None
 
     def _prepare_pages(self, context: RenderContext):
+        for processor in self._preprocessors_for_page_preparation_stage:
+            processor(context)
         for path, page in self._pages:
             self._prepare_page(path, page, context)
+        for processor in self._postprocessors_for_page_preparation_stage:
+            processor(context)
 
     def _expand_nodes(
         self,
@@ -285,8 +306,12 @@ class Site:
         context._current_page_path = None
 
     def _expand_pages(self, context: RenderContext):
+        for processor in self._preprocessors_for_page_expansion_stage:
+            processor(context)
         for path, page in self._pages:
             self._expand_page(path, page, context)
+        for processor in self._postprocessors_for_page_expansion_stage:
+            processor(context)
 
     def _render_page(self, path: str, page: Page, context: RenderContext):
         context._current_page_path = path
@@ -298,10 +323,17 @@ class Site:
         context._current_page_path = None
 
     def _render_pages(self, context: RenderContext):
+        for processor in self._preprocessors_for_page_rendering_stage:
+            processor(context)
         for path, page in self._pages:
             self._render_page(path, page, context)
+        for processor in self._postprocessors_for_page_rendering_stage:
+            processor(context)
 
     def _finalize_site(self, context: RenderContext):
+        for processor in self._postprocessors_for_site_build:
+            processor(context)
+
         for path, render_result in context.rendered_pages.items():
             page_path = path
             if path.endswith("/"):
@@ -314,10 +346,6 @@ class Site:
                     "already exported to that path".format(page_path)
                 )
             context.exported_files[page_path] = render_result
-
-        # Run postprocessors
-        for postprocessor in self._postprocessors:
-            postprocessor(context)
 
         for path, file_content in context.exported_files.items():
             target_path = pathlib.Path(self.root_path) / path.lstrip('/')
