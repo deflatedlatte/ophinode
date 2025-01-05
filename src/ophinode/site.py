@@ -50,9 +50,9 @@ class Site:
         self._postprocessors_for_page_expansion_stage = []
         self._preprocessors_for_page_rendering_stage = []
         self._postprocessors_for_page_rendering_stage = []
-        if preprocessors is not None:
-            if not isinstance(preprocessors, collections.abc.Iterable):
-                raise TypeError("preprocessors must be an iterable")
+        if processors is not None:
+            if not isinstance(processors, collections.abc.Iterable):
+                raise TypeError("processors must be an iterable")
             for stage, processor in processors:
                 self.add_processor(stage, processor)
 
