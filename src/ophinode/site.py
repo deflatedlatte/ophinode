@@ -64,8 +64,8 @@ class Site:
         if not isinstance(options, dict):
             raise TypeError("options must be a dict")
         for k, v in options.items():
-            if k == ROOT_PATH_OPTION_KEY:
-                self.set_root_path(v)
+            if k == EXPORT_ROOT_PATH_OPTION_KEY:
+                self.set_export_root_path(v)
             elif k == DEFAULT_LAYOUT_OPTION_KEY:
                 self.set_default_layout(v)
             elif k == DEFAULT_PAGE_OUTPUT_FILENAME_OPTION_KEY:
@@ -77,16 +77,18 @@ class Site:
             elif not ignore_invalid_keys:
                 raise ValueError("unknown option key: {}".format(k))
 
-    def set_root_path(self, root_path: str):
-        if not isinstance(root_path, str):
-            raise TypeError("root_path must be a str")
-        self._options[ROOT_PATH_OPTION_KEY] = os.path.abspath(root_path)
+    def set_export_root_path(self, export_root_path: str):
+        if not isinstance(export_root_path, str):
+            raise TypeError("export_root_path must be a str")
+        self._options[EXPORT_ROOT_PATH_OPTION_KEY] = os.path.abspath(
+            export_root_path
+        )
 
     @property
-    def root_path(self) -> str:
+    def export_root_path(self) -> str:
         return self._options.get(
-            ROOT_PATH_OPTION_KEY,
-            ROOT_PATH_OPTION_DEFAULT_VALUE
+            EXPORT_ROOT_PATH_OPTION_KEY,
+            EXPORT_ROOT_PATH_OPTION_DEFAULT_VALUE
         )
 
     def set_default_layout(self, default_layout: Layout):
@@ -334,36 +336,40 @@ class Site:
             processor(context)
 
     def _export_files(self, context: RenderContext):
-        # Check if root_path has been set
-        if not self.root_path:
+        # Check if export_root_path has been set
+        if not self.export_root_path:
             raise RootPathUndefinedError(
-                "failed to export files because root_path is empty"
+                "failed to export files because export_root_path is empty"
             )
 
-        # Ensure root_path is a directory, or if it does not exist, create one
-        root_path = pathlib.Path(self.root_path)
-        if not root_path.exists():
-            if root_path.is_symlink():
+        # Ensure export_root_path is a directory,
+        # or if it does not exist, create one
+        export_root_path = pathlib.Path(self.export_root_path)
+        if not export_root_path.exists():
+            if export_root_path.is_symlink():
                 raise RootPathIsNotADirectoryError(
-                    "failed to export files because root_path is a broken"
-                    "symlink"
+                    "failed to export files because export_root_path is a "
+                    "broken symlink"
                 )
             try:
-                root_path.mkdir(parents=True)
+                export_root_path.mkdir(parents=True)
             except NotADirectoryError as exc:
                 raise RootPathIsNotADirectoryError(
-                    "failed to export files because the parent of root_path "
-                    "is not a directory, and thus root_path cannot be a "
-                    "directory"
+                    "failed to export files because the parent of "
+                    "export_root_path is not a directory, and thus "
+                    "export_root_path cannot be a directory"
                 ) from exc
-        elif not root_path.is_dir():
+        elif not export_root_path.is_dir():
             raise RootPathIsNotADirectoryError(
-                "failed to export files because root_path is not a directory"
+                "failed to export files because export_root_path is not a "
+                "directory"
             )
 
         # Export files
         for path, file_content in context.exported_files.items():
-            target_path = pathlib.Path(self.root_path) / path.lstrip('/')
+            target_path = (
+                pathlib.Path(self.export_root_path) / path.lstrip('/')
+            )
             target_directory = target_path.parent
             if not target_directory.exists():
                 target_directory.mkdir(parents=True)
@@ -390,7 +396,7 @@ class Site:
 
 def render_page(page: Page, default_layout: Union[Layout, None] = None):
     options = {
-        ROOT_PATH_OPTION_KEY: "/",
+        EXPORT_ROOT_PATH_OPTION_KEY: "/",
         AUTO_EXPORT_FILES_OPTION_KEY: False,
     }
     if default_layout is not None:
