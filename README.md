@@ -79,7 +79,10 @@ class MainPage(HTML5Page):
         )
 
     def head(self):
-        return []
+        return [
+            Meta(charset="utf-8"),
+            Title("Main Page")
+        ]
 
 if __name__ == "__main__":
     print(render_page(MainPage()))
