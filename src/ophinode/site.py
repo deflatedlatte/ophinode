@@ -19,7 +19,7 @@ class Site:
     def __init__(
         self,
         options: Union[dict, None] = None,
-        pages: Union[Iterable[Tuple[str, "Page"]], None] = None,
+        pages: Union[Iterable[Tuple[str, Page]], None] = None,
         processors: Union[
             Iterable[Tuple[str, Callable[["RenderContext"], None]]],
             None
