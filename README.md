@@ -1,6 +1,6 @@
 # ophinode
 `ophinode` is a static site generator written in Python that focuses on being
-a simple and flexible library for generating HTML documents.
+a simple and flexible library for creating websites.
 
 This project is currently in the initial development stage, and the APIs may
 change at any time.
