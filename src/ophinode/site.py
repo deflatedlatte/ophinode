@@ -181,6 +181,8 @@ class Site:
 
     def _prepare_site(self) -> RenderContext:
         context = RenderContext(self)
+        for path, page in self._pages:
+            context._page_data[path] = {}
         for processor in self._preprocessors_for_site_build:
             processor(context)
         return context
