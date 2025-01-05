@@ -72,6 +72,8 @@ class Site:
                 self.set_default_page_output_filename(v)
             elif k == PAGE_OUTPUT_FILE_EXTENSION_OPTION_KEY:
                 self.set_page_output_file_extension(v)
+            elif k == AUTO_EXPORT_FILES_OPTION_KEY:
+                self.set_auto_export_files(v)
             elif not ignore_invalid_keys:
                 raise ValueError("unknown option key: {}".format(k))
 
@@ -131,6 +133,16 @@ class Site:
         return self._options.get(
             PAGE_OUTPUT_FILE_EXTENSION_OPTION_KEY,
             PAGE_OUTPUT_FILE_EXTENSION_OPTION_DEFAULT_VALUE
+        )
+
+    def set_auto_export_files(self, auto_export_files: bool):
+        self._options[AUTO_EXPORT_FILES_OPTION_KEY] = bool(auto_export_files)
+
+    @property
+    def auto_export_files(self) -> bool:
+        return self._options.get(
+            AUTO_EXPORT_FILES_OPTION_KEY,
+            AUTO_EXPORT_FILES_OPTION_DEFAULT_VALUE
         )
 
     def add_processor(
@@ -372,6 +384,7 @@ class Site:
         self._expand_pages(context)
         self._render_pages(context)
         self._finalize_site(context)
-        self._export_files(context)
+        if self.auto_export_files:
+            self._export_files(context)
         return context
 
