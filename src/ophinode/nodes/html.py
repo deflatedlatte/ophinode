@@ -50,6 +50,58 @@ class HTML5Doctype(Node, ClosedRenderable):
     def render(self, context: "ophinode.rendering.RenderContext"):
         return "<!doctype html>"
 
+class CDATASection(Node, OpenRenderable, Expandable, Preparable):
+    def __init__(self, *args):
+        self.children = list(args)
+
+    def prepare(self, context: "ophinode.rendering.RenderContext"):
+        for c in self.children:
+            if isinstance(c, Preparable):
+                c.prepare(context)
+
+    def expand(self, context: "ophinode.rendering.RenderContext"):
+        return self.children.copy()
+
+    def render_start(self, context: "ophinode.rendering.RenderContext"):
+        return "<![CDATA[".format(self.tag)
+
+    def render_end(self, context: "ophinode.rendering.RenderContext"):
+        return "]]>".format(self.tag)
+
+    @property
+    def auto_newline(self):
+        return False
+
+    @property
+    def auto_indent(self):
+        return False
+
+class Comment(Node, OpenRenderable, Expandable, Preparable):
+    def __init__(self, *args):
+        self.children = list(args)
+
+    def prepare(self, context: "ophinode.rendering.RenderContext"):
+        for c in self.children:
+            if isinstance(c, Preparable):
+                c.prepare(context)
+
+    def expand(self, context: "ophinode.rendering.RenderContext"):
+        return self.children.copy()
+
+    def render_start(self, context: "ophinode.rendering.RenderContext"):
+        return "<!--".format(self.tag)
+
+    def render_end(self, context: "ophinode.rendering.RenderContext"):
+        return "-->".format(self.tag)
+
+    @property
+    def auto_newline(self):
+        return False
+
+    @property
+    def auto_indent(self):
+        return False
+
 class Element(Node):
     def render_attributes(self):
         attribute_order = []
