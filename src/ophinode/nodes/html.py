@@ -33,9 +33,18 @@ class Node:
 class TextNode(Node, ClosedRenderable):
     def __init__(self, text_content: str):
         self._text_content = text_content
+        self._escape_ampersands = True
 
     def render(self, context: "ophinode.rendering.RenderContext"):
-        return self._text_content
+        text_content = self._text_content
+        if self._escape_ampersands:
+            text_content = text_content.replace("&", "&amp;")
+        text_content = text_content.replace("<", "&lt;").replace(">", "&gt;")
+        return text_content
+
+    def escape_ampersands(self, value: bool = True):
+        self._escape_ampersands = bool(value)
+        return self
 
 class HTML5Doctype(Node, ClosedRenderable):
     def render(self, context: "ophinode.rendering.RenderContext"):
@@ -53,13 +62,24 @@ class Element(Node):
 
         rendered = []
         for k in attribute_order:
+            for c in k:
+                if c in " \"'>/=":
+                    raise InvalidAttributeNameError(k)
             v = self.attributes[k]
             if v is not None:
-                rendered.append("{}=\"{}\"".format(k, v))
+                escaped = str(v)
+                if self._escape_ampersands:
+                    escaped = escaped.replace("&", "&amp;")
+                escaped = escaped.replace("\"", "&quot;")
+                rendered.append("{}=\"{}\"".format(k, escaped))
             else:
                 rendered.append("{}".format(k))
 
         return " ".join(rendered)
+
+    def escape_ampersands(self, value: bool = True):
+        self._escape_ampersands = bool(value)
+        return self
 
 class OpenElement(Element, OpenRenderable, Expandable, Preparable):
     tag = "div"
@@ -68,6 +88,7 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
     def __init__(self, *args, **kwargs):
         self.children = list(args)
         self.attributes = dict(kwargs)
+        self._escape_ampersands = True
 
     def prepare(self, context: "ophinode.rendering.RenderContext"):
         for c in self.children:
@@ -99,6 +120,7 @@ class ClosedElement(Element, ClosedRenderable):
 
     def __init__(self, **kwargs):
         self.attributes = dict(kwargs)
+        self._escape_ampersands = True
 
     def render(self, context: "ophinode.rendering.RenderContext"):
         rendered_attributes = self.render_attributes()

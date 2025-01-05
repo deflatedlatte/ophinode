@@ -12,3 +12,6 @@ class NonRenderableNodeError(Exception):
 
 class ExportPathCollisionError(Exception):
     pass
+
+class InvalidAttributeNameError(Exception):
+    pass
