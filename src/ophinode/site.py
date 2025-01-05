@@ -154,7 +154,7 @@ class Site:
     ):
         if not isinstance(stage, str):
             raise ValueError("processor stage must be a str")
-        if not callable(preprocessor):
+        if not callable(processor):
             raise TypeError("processor must be a callable")
         if stage == "pre_site_build":
             self._preprocessors_for_site_build.append(processor)
