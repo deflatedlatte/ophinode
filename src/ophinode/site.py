@@ -331,9 +331,6 @@ class Site:
             processor(context)
 
     def _finalize_site(self, context: RenderContext):
-        for processor in self._postprocessors_for_site_build:
-            processor(context)
-
         for path, render_result in context.rendered_pages.items():
             page_path = path
             if path.endswith("/"):
@@ -346,6 +343,9 @@ class Site:
                     "already exported to that path".format(page_path)
                 )
             context.exported_files[page_path] = render_result
+
+        for processor in self._postprocessors_for_site_build:
+            processor(context)
 
         for path, file_content in context.exported_files.items():
             target_path = pathlib.Path(self.root_path) / path.lstrip('/')
