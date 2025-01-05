@@ -166,32 +166,6 @@ class Site:
             raise ValueError("invalid rendering stage: '{}'".format(stage))
 
     def _prepare_site(self) -> RenderContext:
-        # Check if root_path has been set
-        if not self.root_path:
-            raise RootPathUndefinedError(
-                "failed to prepare site because the root_path is empty"
-            )
-
-        # Ensure root_path is a directory, or if it does not exist, create one
-        root_path = pathlib.Path(self.root_path)
-        if not root_path.exists():
-            if root_path.is_symlink():
-                raise RootPathIsNotADirectoryError(
-                    "failed to prepare site because the root_path is a "
-                    "broken symlink"
-                )
-            try:
-                root_path.mkdir(parents=True)
-            except NotADirectoryError as exc:
-                raise RootPathIsNotADirectoryError(
-                    "failed to prepare site because parents of root_path is "
-                    "not a directory"
-                ) from exc
-        elif not root_path.is_dir():
-            raise RootPathIsNotADirectoryError(
-                "failed to prepare site because root_path is not a directory"
-            )
-
         context = RenderContext(self)
         for processor in self._preprocessors_for_site_build:
             processor(context)
@@ -347,6 +321,35 @@ class Site:
         for processor in self._postprocessors_for_site_build:
             processor(context)
 
+    def _export_files(self, context: RenderContext):
+        # Check if root_path has been set
+        if not self.root_path:
+            raise RootPathUndefinedError(
+                "failed to export files because root_path is empty"
+            )
+
+        # Ensure root_path is a directory, or if it does not exist, create one
+        root_path = pathlib.Path(self.root_path)
+        if not root_path.exists():
+            if root_path.is_symlink():
+                raise RootPathIsNotADirectoryError(
+                    "failed to export files because root_path is a broken"
+                    "symlink"
+                )
+            try:
+                root_path.mkdir(parents=True)
+            except NotADirectoryError as exc:
+                raise RootPathIsNotADirectoryError(
+                    "failed to export files because the parent of root_path "
+                    "is not a directory, and thus root_path cannot be a "
+                    "directory"
+                ) from exc
+        elif not root_path.is_dir():
+            raise RootPathIsNotADirectoryError(
+                "failed to export files because root_path is not a directory"
+            )
+
+        # Export files
         for path, file_content in context.exported_files.items():
             target_path = pathlib.Path(self.root_path) / path.lstrip('/')
             target_directory = target_path.parent
@@ -369,5 +372,6 @@ class Site:
         self._expand_pages(context)
         self._render_pages(context)
         self._finalize_site(context)
+        self._export_files(context)
         return context
 
