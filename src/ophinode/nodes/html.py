@@ -85,21 +85,25 @@ class HTML5Doctype(Node, ClosedRenderable):
 
 class CDATASection(Node, OpenRenderable, Expandable, Preparable):
     def __init__(self, *args):
-        self.children = list(args)
+        self._children = list(args)
 
     def prepare(self, context: "ophinode.rendering.RenderContext"):
-        for c in self.children:
+        for c in self._children:
             if isinstance(c, Preparable):
                 c.prepare(context)
 
     def expand(self, context: "ophinode.rendering.RenderContext"):
-        return self.children.copy()
+        return self._children.copy()
 
     def render_start(self, context: "ophinode.rendering.RenderContext"):
         return "<![CDATA[".format(self.tag)
 
     def render_end(self, context: "ophinode.rendering.RenderContext"):
         return "]]>".format(self.tag)
+
+    @property
+    def children(self):
+        return self._children
 
     @property
     def auto_newline(self):
@@ -111,15 +115,15 @@ class CDATASection(Node, OpenRenderable, Expandable, Preparable):
 
 class Comment(Node, OpenRenderable, Expandable, Preparable):
     def __init__(self, *args):
-        self.children = list(args)
+        self._children = list(args)
 
     def prepare(self, context: "ophinode.rendering.RenderContext"):
-        for c in self.children:
+        for c in self._children:
             if isinstance(c, Preparable):
                 c.prepare(context)
 
     def expand(self, context: "ophinode.rendering.RenderContext"):
-        return self.children.copy()
+        return self._children.copy()
 
     def render_start(self, context: "ophinode.rendering.RenderContext"):
         return "<!--".format(self.tag)
@@ -138,7 +142,7 @@ class Comment(Node, OpenRenderable, Expandable, Preparable):
 class Element(Node):
     def render_attributes(self):
         attribute_order = []
-        keys = set(self.attributes)
+        keys = set(self._attributes)
         for k in ["id", "class", "style", "title"]:
             if k in keys:
                 attribute_order.append(k)
@@ -150,7 +154,7 @@ class Element(Node):
             for c in k:
                 if c in " \"'>/=":
                     raise InvalidAttributeNameError(k)
-            v = self.attributes[k]
+            v = self._attributes[k]
             if isinstance(v, bool):
                 if v:
                     rendered.append("{}".format(k))
@@ -173,6 +177,10 @@ class Element(Node):
                 rendered.append("{}=\"{}\"".format(k, escaped))
 
         return " ".join(rendered)
+
+    @property
+    def attributes(self):
+        return self._attributes
 
     def escape_ampersands(self, value: bool = True):
         self._escape_ampersands = bool(value)
@@ -199,32 +207,32 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
         children = None,
         **kwargs
     ):
-        self.children = list(args)
+        self._children = list(args)
         if children is not None:
             for c in children:
-                self.children.append(c)
-        self.attributes = dict(kwargs)
+                self._children.append(c)
+        self._attributes = dict(kwargs)
         if class_name is not None:
-            self.attributes["class"] = class_name
+            self._attributes["class"] = class_name
         if html_for is not None:
-            self.attributes["for"] = html_for
+            self._attributes["for"] = html_for
         if html_as is not None:
-            self.attributes["as"] = html_as
+            self._attributes["as"] = html_as
         if html_async is not None:
-            self.attributes["async"] = html_async
+            self._attributes["async"] = html_async
         if accept_charset is not None:
-            self.attributes["accept-charset"] = accept_charset
+            self._attributes["accept-charset"] = accept_charset
         self._escape_ampersands = escape_ampersands
         self._escape_tag_delimiters = escape_tag_delimiters
 
     def prepare(self, context: "ophinode.rendering.RenderContext"):
-        for c in self.children:
+        for c in self._children:
             if isinstance(c, Preparable):
                 c.prepare(context)
 
     def expand(self, context: "ophinode.rendering.RenderContext"):
         expansion = []
-        for c in self.children:
+        for c in self._children:
             if isinstance(c, str):
                 node = TextNode(c)
                 if self._escape_ampersands is not None:
@@ -244,6 +252,10 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
 
     def render_end(self, context: "ophinode.rendering.RenderContext"):
         return "</{}>".format(self.tag)
+
+    @property
+    def children(self):
+        return self._children
 
     @property
     def auto_newline(self):
@@ -268,17 +280,17 @@ class ClosedElement(Element, ClosedRenderable):
         escape_tag_delimiters = None,
         **kwargs
     ):
-        self.attributes = dict(kwargs)
+        self._attributes = dict(kwargs)
         if class_name is not None:
-            self.attributes["class"] = class_name
+            self._attributes["class"] = class_name
         if html_for is not None:
-            self.attributes["for"] = html_for
+            self._attributes["for"] = html_for
         if html_as is not None:
-            self.attributes["as"] = html_as
+            self._attributes["as"] = html_as
         if html_async is not None:
-            self.attributes["async"] = html_async
+            self._attributes["async"] = html_async
         if accept_charset is not None:
-            self.attributes["accept-charset"] = accept_charset
+            self._attributes["accept-charset"] = accept_charset
         self._escape_ampersands = escape_ampersands
         self._escape_tag_delimiters = escape_tag_delimiters
 
