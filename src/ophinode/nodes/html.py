@@ -17,13 +17,14 @@ class HTML5Page(Page):
     def layout(self):
         return HTML5Layout()
 
-    @abstractmethod
-    def head(self):
-        pass
+    def html_attributes(self) -> dict:
+        return {}
 
-    @abstractmethod
+    def head(self):
+        return []
+
     def body(self):
-        pass
+        return []
 
 class HTML5Layout(Layout):
     def build(self, page: HTML5Page, context: "ophinode.rendering.RenderContext"):
@@ -35,7 +36,8 @@ class HTML5Layout(Layout):
                 ),
                 Body(
                     page.body()
-                )
+                ),
+                **page.html_attributes
             )
         ]
 
