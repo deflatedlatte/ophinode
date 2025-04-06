@@ -1,3 +1,6 @@
+"Collection of various constants."
+
+# Site options
 EXPORT_ROOT_PATH_OPTION_KEY = "export_root_path"
 EXPORT_ROOT_PATH_OPTION_DEFAULT_VALUE = ""
 DEFAULT_LAYOUT_OPTION_KEY = "default_layout"
