@@ -344,6 +344,7 @@ class Site:
                     )
                 ):
                     page_path += "." + self.page_output_file_extension
+            page_path = os.path.normpath(page_path)
             if page_path in context.exported_files:
                 raise ExportPathCollisionError(
                     "attempted to export a page to '{}', but another file is "
