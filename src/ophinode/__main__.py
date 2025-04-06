@@ -1,14 +1,35 @@
 import argparse
 
-EXAMPLE1 = """# Example program: create a page in a directory.
+EXAMPLE1 = """# Example program: render a page without defining a site.
+#
+# Running this program prints a HTML document to standard output.
+#
+from ophinode import *
+
+class MainPage:
+    def body(self):
+        return Div(
+            H1("Main Page"),
+            P("Welcome to ophinode!")
+        )
+
+    def head(self):
+        return [
+            Meta(charset="utf-8"),
+            Title("Main Page")
+        ]
+
+render_page(MainPage(), HTML5Layout())
+"""
+
+EXAMPLE2 = """# Example program: create a page in a directory.
 #
 # Running this program creates "index.html" in "./out" directory.
 #
-from ophinode.site import Site
-from ophinode.nodes.html import *
+from ophinode import *
 
 class DefaultLayout(Layout):
-    def build(self, page: Page, context: "ophinode.rendering.RenderContext"):
+    def build(self, page, context):
         return [
             HTML5Doctype(),
             Html(
@@ -23,7 +44,7 @@ class DefaultLayout(Layout):
             )
         ]
 
-class MainPage(HTML5Page):
+class MainPage:
     @property
     def layout(self):
         return DefaultLayout()
@@ -44,35 +65,12 @@ if __name__ == "__main__":
     site = Site({
         "default_layout": DefaultLayout(),
         "export_root_path": "./out",
+        "default_page_output_filename": "index.html",
     }, [
         ("/", MainPage()),
     ])
 
     site.build_site()
-"""
-
-EXAMPLE2 = """# Example program: render a page without defining a site.
-#
-# Running this program prints a HTML document to standard output.
-#
-from ophinode.site import render_page
-from ophinode.nodes.html import *
-
-class MainPage(HTML5Page):
-    def body(self):
-        return Div(
-            H1("Main Page"),
-            P("Welcome to ophinode!")
-        )
-
-    def head(self):
-        return [
-            Meta(charset="utf-8"),
-            Title("Main Page")
-        ]
-
-if __name__ == "__main__":
-    print(render_page(MainPage()))
 """
 
 def main():
@@ -82,13 +80,13 @@ def main():
     args = parser.parse_args()
     if args.subcommand == "examples":
         if not args.arguments:
-            print("available examples: basic_site, render_page")
-        elif args.arguments[0] == "basic_site":
-            print(EXAMPLE1)
+            print("available examples: render_page, basic_site")
         elif args.arguments[0] == "render_page":
+            print(EXAMPLE1)
+        elif args.arguments[0] == "basic_site":
             print(EXAMPLE2)
         else:
-            print("available examples: basic_site")
+            print("available examples: render_page, basic_site")
     else:
         parser.print_help()
 
