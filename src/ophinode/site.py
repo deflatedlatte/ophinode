@@ -268,12 +268,12 @@ class Site:
                 render_node = RenderNode(TextNode(node))
                 render_node._parent = curr
                 curr._children.append(render_node)
-            elif isinstance(node, list) or isinstance(node, tuple):
-                for n in reversed(node):
-                    stack.append(n)
             elif callable(node):
                 r = node(context)
                 stack.append(r)
+            elif isinstance(node, collections.abc.Iterable):
+                for n in reversed(node):
+                    stack.append(n)
             elif isinstance(node, Expandable):
                 r = node.expand(context)
                 stack.append(_StackDelimiter())
