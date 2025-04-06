@@ -1,19 +1,5 @@
 from .base import *
 
-class HTML5Layout(Layout):
-    def build(self, page: Page, context: "ophinode.rendering.RenderContext"):
-        return [
-            HTML5Doctype(),
-            Html(
-                Head(
-                    page.head()
-                ),
-                Body(
-                    page.body()
-                )
-            )
-        ]
-
 class HTML5Page(Page):
     @property
     def layout(self):
@@ -26,6 +12,20 @@ class HTML5Page(Page):
     @abstractmethod
     def body(self):
         pass
+
+class HTML5Layout(Layout):
+    def build(self, page: HTML5Page, context: "ophinode.rendering.RenderContext"):
+        return [
+            HTML5Doctype(),
+            Html(
+                Head(
+                    page.head()
+                ),
+                Body(
+                    page.body()
+                )
+            )
+        ]
 
 class Node:
     pass
