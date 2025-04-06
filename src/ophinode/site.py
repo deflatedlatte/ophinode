@@ -410,8 +410,6 @@ def render_page(page: Any, default_layout: Union[Layout, None] = None):
     }
     if default_layout is not None:
         options[DEFAULT_LAYOUT_OPTION_KEY] = default_layout
-    site = Site(options, [("/", page)])
+    site = Site(options, [("/index.html", page)])
     context = site.build_site()
-    return context.exported_files[
-        "/" + DEFAULT_PAGE_OUTPUT_FILENAME_OPTION_DEFAULT_VALUE
-    ]
+    return context.exported_files["/index.html"]
