@@ -30,7 +30,7 @@ class MainPage:
             Title("Main Page")
         ]
 
-render_page(MainPage(), HTML5Layout())
+print(render_page(MainPage(), HTML5Layout()))
 
 ```
 
