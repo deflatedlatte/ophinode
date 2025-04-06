@@ -37,6 +37,8 @@ class Site:
             for path, page in pages:
                 if not isinstance(path, str):
                     raise ValueError("path to a page must be a str")
+                if path in self._pages_dict:
+                    raise ValueError("duplicate page path: " + path)
                 self._pages_dict[path] = page
                 self._pages.append((path, page))
 
