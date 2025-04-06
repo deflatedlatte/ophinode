@@ -191,7 +191,7 @@ class Site:
 
     def _build_nodes(self, page: Any, context: RenderContext) -> Iterable:
         layout = None
-        if isinstance(page, Page):
+        if hasattr(page, "layout"):
             layout = page.layout
             l_src = "layout property of page"
         if not layout:
