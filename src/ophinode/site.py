@@ -330,9 +330,19 @@ class Site:
             elif self.page_output_file_extension:
                 fname = path[path.rfind("/")+1:]
                 dot_index = fname.rfind(".")
-                if dot_index != 0 and (fname and dot_index != len(fname)-1):
-                    # append extension if the rightmost dot is not the first
-                    # (or last) character, or if a dot does not exist at all
+                if (
+                    (
+                        dot_index == -1
+                        or fname[dot_index+1:]
+                           != self.page_output_file_extension
+                    )
+                    and
+                    # the rightmost dot is not the first (or last) character
+                    (
+                        dot_index != 0
+                        and (fname and dot_index != len(fname)-1)
+                    )
+                ):
                     page_path += "." + self.page_output_file_extension
             if page_path in context.exported_files:
                 raise ExportPathCollisionError(
