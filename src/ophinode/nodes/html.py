@@ -151,7 +151,10 @@ class Element(Node):
                 if c in " \"'>/=":
                     raise InvalidAttributeNameError(k)
             v = self.attributes[k]
-            if v is not None:
+            if isinstance(v, bool):
+                if v:
+                    rendered.append("{}".format(k))
+            else:
                 escaped = str(v)
 
                 escape_ampersands = self._escape_ampersands
@@ -168,8 +171,6 @@ class Element(Node):
 
                 escaped = escaped.replace("\"", "&quot;")
                 rendered.append("{}=\"{}\"".format(k, escaped))
-            else:
-                rendered.append("{}".format(k))
 
         return " ".join(rendered)
 
