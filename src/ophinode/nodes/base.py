@@ -1,3 +1,4 @@
+from typing import Any
 from abc import ABC, abstractmethod
 
 class ClosedRenderable(ABC):
@@ -39,6 +40,6 @@ class Page:
 
 class Layout(ABC):
     @abstractmethod
-    def build(self, page: Page, context: "ophinode.rendering.RenderContext"):
+    def build(self, page: Any, context: "ophinode.rendering.RenderContext"):
         pass
 

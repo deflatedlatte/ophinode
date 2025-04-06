@@ -4,7 +4,7 @@ import pathlib
 import collections
 import collections.abc
 from abc import ABC, abstractmethod
-from typing import Union, Iterable, Tuple, Callable
+from typing import Any, Union, Iterable, Tuple, Callable
 
 from .exceptions import *
 from .constants import *
@@ -19,7 +19,7 @@ class Site:
     def __init__(
         self,
         options: Union[collections.abc.Mapping, None] = None,
-        pages: Union[Iterable[Tuple[str, Page]], None] = None,
+        pages: Union[Iterable[Tuple[str, Any]], None] = None,
         processors: Union[
             Iterable[Tuple[str, Callable[["RenderContext"], None]]],
             None
@@ -187,7 +187,7 @@ class Site:
             processor(context)
         return context
 
-    def _build_nodes(self, page: Page, context: RenderContext) -> Iterable:
+    def _build_nodes(self, page: Any, context: RenderContext) -> Iterable:
         layout = None
         if isinstance(page, Page):
             layout = page.layout
@@ -231,7 +231,7 @@ class Site:
             if isinstance(node, Preparable):
                 node.prepare(context)
 
-    def _prepare_page(self, path: str, page: Page, context: RenderContext):
+    def _prepare_page(self, path: str, page: Any, context: RenderContext):
         context._current_page_path = path
         context._current_page = page
         self._prepare_nodes(context.built_pages[path], context)
@@ -287,7 +287,7 @@ class Site:
 
         return root_node
 
-    def _expand_page(self, path: str, page: Page, context: RenderContext):
+    def _expand_page(self, path: str, page: Any, context: RenderContext):
         context._current_page_path = path
         context._current_page = page
         root_node = self._expand_nodes(context.built_pages[path], context)
@@ -303,7 +303,7 @@ class Site:
         for processor in self._postprocessors_after_page_expansion_stage:
             processor(context)
 
-    def _render_page(self, path: str, page: Page, context: RenderContext):
+    def _render_page(self, path: str, page: Any, context: RenderContext):
         context._current_page_path = path
         context._current_page = page
         root_node = context.expanded_pages[path]
@@ -396,7 +396,7 @@ class Site:
             self._export_files(context)
         return context
 
-def render_page(page: Page, default_layout: Union[Layout, None] = None):
+def render_page(page: Any, default_layout: Union[Layout, None] = None):
     options = {
         EXPORT_ROOT_PATH_OPTION_KEY: "/",
         AUTO_EXPORT_FILES_OPTION_KEY: False,
