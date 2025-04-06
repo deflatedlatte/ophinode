@@ -19,7 +19,7 @@ class MainPage:
             Title("Main Page")
         ]
 
-render_page(MainPage(), HTML5Layout())
+print(render_page(MainPage(), HTML5Layout()))
 """
 
 EXAMPLE2 = """# Example program: create a page in a directory.
