@@ -421,6 +421,6 @@ def render_page(page: Any, default_layout: Union[Layout, None] = None):
     }
     if default_layout is not None:
         options[DEFAULT_LAYOUT_OPTION_KEY] = default_layout
-    site = Site(options, [("/index.html", page)])
+    site = Site(options, [("/", page)])
     context = site.build_site()
-    return context.exported_files["/index.html"]
+    return context.rendered_pages["/"]
