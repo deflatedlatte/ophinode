@@ -1,6 +1,17 @@
 from .base import *
 from ophinode.exceptions import InvalidAttributeNameError
 
+_default_escape_ampersands = False
+_default_escape_tag_delimiters = True
+
+def default_escape_ampersands(value: bool = True):
+    global _default_escape_ampersands
+    _default_escape_ampersands = bool(value)
+
+def default_escape_tag_delimiters(value: bool = True):
+    global _default_escape_tag_delimiters
+    _default_escape_tag_delimiters = bool(value)
+
 class HTML5Page(Page):
     @property
     def layout(self):
@@ -32,19 +43,40 @@ class Node:
     pass
 
 class TextNode(Node, ClosedRenderable):
-    def __init__(self, text_content: str):
+    def __init__(
+        self,
+        text_content: str,
+        *,
+        escape_ampersands: bool = None,
+        escape_tag_delimiters: bool = None,
+    ):
         self._text_content = text_content
-        self._escape_ampersands = True
+        self._escape_ampersands = escape_ampersands
+        self._escape_tag_delimiters = escape_tag_delimiters
 
     def render(self, context: "ophinode.rendering.RenderContext"):
         text_content = self._text_content
-        if self._escape_ampersands:
+
+        escape_ampersands = self._escape_ampersands
+        if escape_ampersands is None:
+            escape_ampersands = _default_escape_ampersands
+        if escape_ampersands:
             text_content = text_content.replace("&", "&amp;")
-        text_content = text_content.replace("<", "&lt;").replace(">", "&gt;")
+
+        escape_tag_delimiters = self._escape_tag_delimiters
+        if escape_tag_delimiters is None:
+            escape_tag_delimiters = _default_escape_tag_delimiters
+        if escape_tag_delimiters:
+            text_content = text_content.replace("<", "&lt;").replace(">", "&gt;")
+
         return text_content
 
     def escape_ampersands(self, value: bool = True):
         self._escape_ampersands = bool(value)
+        return self
+
+    def escape_tag_delimiters(self, value: bool = True):
+        self._escape_tag_delimiters = bool(value)
         return self
 
 class HTML5Doctype(Node, ClosedRenderable):
@@ -121,8 +153,19 @@ class Element(Node):
             v = self.attributes[k]
             if v is not None:
                 escaped = str(v)
-                if self._escape_ampersands:
+
+                escape_ampersands = self._escape_ampersands
+                if escape_ampersands is None:
+                    escape_ampersands = _default_escape_ampersands
+                if escape_ampersands:
                     escaped = escaped.replace("&", "&amp;")
+
+                escape_tag_delimiters = self._escape_tag_delimiters
+                if escape_tag_delimiters is None:
+                    escape_tag_delimiters = _default_escape_tag_delimiters
+                if escape_tag_delimiters:
+                    escaped = escaped.replace("<", "&lt;").replace(">", "&gt;")
+
                 escaped = escaped.replace("\"", "&quot;")
                 rendered.append("{}=\"{}\"".format(k, escaped))
             else:
@@ -134,14 +177,44 @@ class Element(Node):
         self._escape_ampersands = bool(value)
         return self
 
+    def escape_tag_delimiters(self, value: bool = True):
+        self._escape_tag_delimiters = bool(value)
+        return self
+
 class OpenElement(Element, OpenRenderable, Expandable, Preparable):
     tag = "div"
     render_mode = "hierarchy"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        *args,
+        class_name = None,
+        html_for = None,
+        html_as = None,
+        html_async = None,
+        accept_charset = None,
+        escape_ampersands = None,
+        escape_tag_delimiters = None,
+        children = None,
+        **kwargs
+    ):
         self.children = list(args)
+        if children is not None:
+            for c in children:
+                self.children.append(c)
         self.attributes = dict(kwargs)
-        self._escape_ampersands = True
+        if class_name is not None:
+            self.attributes["class"] = class_name
+        if html_for is not None:
+            self.attributes["for"] = html_for
+        if html_as is not None:
+            self.attributes["as"] = html_as
+        if html_async is not None:
+            self.attributes["async"] = html_async
+        if accept_charset is not None:
+            self.attributes["accept-charset"] = accept_charset
+        self._escape_ampersands = escape_ampersands
+        self._escape_tag_delimiters = escape_tag_delimiters
 
     def prepare(self, context: "ophinode.rendering.RenderContext"):
         for c in self.children:
@@ -149,7 +222,18 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
                 c.prepare(context)
 
     def expand(self, context: "ophinode.rendering.RenderContext"):
-        return self.children.copy()
+        expansion = []
+        for c in self.children:
+            if isinstance(c, str):
+                node = TextNode(c)
+                if self._escape_ampersands is not None:
+                    node.escape_ampersands(self._escape_ampersands)
+                if self._escape_tag_delimiters is not None:
+                    node.escape_tag_delimiters(self._escape_tag_delimiters)
+                expansion.append(node)
+            else:
+                expansion.append(c)
+        return expansion
 
     def render_start(self, context: "ophinode.rendering.RenderContext"):
         rendered_attributes = self.render_attributes()
@@ -171,9 +255,31 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
 class ClosedElement(Element, ClosedRenderable):
     tag = "meta"
 
-    def __init__(self, **kwargs):
+    def __init__(
+        self,
+        *,
+        class_name = None,
+        html_for = None,
+        html_as = None,
+        html_async = None,
+        accept_charset = None,
+        escape_ampersands = None,
+        escape_tag_delimiters = None,
+        **kwargs
+    ):
         self.attributes = dict(kwargs)
-        self._escape_ampersands = True
+        if class_name is not None:
+            self.attributes["class"] = class_name
+        if html_for is not None:
+            self.attributes["for"] = html_for
+        if html_as is not None:
+            self.attributes["as"] = html_as
+        if html_async is not None:
+            self.attributes["async"] = html_async
+        if accept_charset is not None:
+            self.attributes["accept-charset"] = accept_charset
+        self._escape_ampersands = escape_ampersands
+        self._escape_tag_delimiters = escape_tag_delimiters
 
     def render(self, context: "ophinode.rendering.RenderContext"):
         rendered_attributes = self.render_attributes()
