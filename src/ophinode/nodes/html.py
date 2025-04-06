@@ -1,4 +1,5 @@
 from .base import *
+from ophinode.exceptions import InvalidAttributeNameError
 
 class HTML5Page(Page):
     @property
