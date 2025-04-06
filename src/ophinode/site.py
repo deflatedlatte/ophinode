@@ -327,8 +327,13 @@ class Site:
             page_path = path
             if path.endswith("/"):
                 page_path += self.default_page_output_filename
-            elif not path.endswith(self.page_output_file_extension):
-                page_path += "/" + self.default_page_output_filename
+            elif self.page_output_file_extension:
+                fname = path[path.rfind("/")+1:]
+                dot_index = fname.rfind(".")
+                if dot_index != 0 and (fname and dot_index != len(fname)-1):
+                    # append extension if the rightmost dot is not the first
+                    # (or last) character, or if a dot does not exist at all
+                    page_path += "." + self.page_output_file_extension
             if page_path in context.exported_files:
                 raise ExportPathCollisionError(
                     "attempted to export a page to '{}', but another file is "
