@@ -574,10 +574,6 @@ class MarkedTextElement(OpenElement):
     tag = "mark"
     render_mode = "inline"
 
-class MarkedTextElement(OpenElement):
-    tag = "mark"
-    render_mode = "inline"
-
 class BidirectionalIsolateElement(OpenElement):
     tag = "bdi"
     render_mode = "inline"
