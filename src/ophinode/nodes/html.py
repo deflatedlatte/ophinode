@@ -37,7 +37,7 @@ class HTML5Layout(Layout):
                 Body(
                     page.body()
                 ),
-                **page.html_attributes
+                **page.html_attributes()
             )
         ]
 
