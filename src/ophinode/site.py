@@ -18,7 +18,7 @@ class _StackDelimiter:
 class Site:
     def __init__(
         self,
-        options: Union[dict, None] = None,
+        options: Union[collections.abc.Mapping, None] = None,
         pages: Union[Iterable[Tuple[str, Page]], None] = None,
         processors: Union[
             Iterable[Tuple[str, Callable[["RenderContext"], None]]],
@@ -58,11 +58,11 @@ class Site:
 
     def update_options(
         self,
-        options: dict,
+        options: collections.abc.Mapping,
         ignore_invalid_keys: bool = False
     ):
-        if not isinstance(options, dict):
-            raise TypeError("options must be a dict")
+        if not isinstance(options, collections.abc.Mapping):
+            raise TypeError("options must be a mapping")
         for k, v in options.items():
             if k == EXPORT_ROOT_PATH_OPTION_KEY:
                 self.set_export_root_path(v)
