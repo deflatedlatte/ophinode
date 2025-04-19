@@ -360,6 +360,33 @@ class MetaElement(ClosedElement):
 class StyleElement(OpenElement):
     tag = "style"
 
+    def __init__(self, *args, escape_tag_delimiters = None, **kwargs):
+        if escape_tag_delimiters is None:
+            # stylesheets might contain angle brackets, so it is better to
+            # disable tag delimiter escaping by default
+            escape_tag_delimiters = False
+        super().__init__(
+            *args,
+            escape_tag_delimiters=escape_tag_delimiters,
+            **kwargs
+        )
+
+    def expand(self, context: "ophinode.rendering.RenderContext"):
+        expansion = []
+        for c in self._children:
+            if isinstance(c, str):
+                # Stylesheets might contain "</style", so it must be escaped
+                content = c.replace("</script", "\\3C/script")
+                node = TextNode(content)
+                if self._escape_ampersands is not None:
+                    node.escape_ampersands(self._escape_ampersands)
+                if self._escape_tag_delimiters is not None:
+                    node.escape_tag_delimiters(self._escape_tag_delimiters)
+                expansion.append(node)
+            else:
+                expansion.append(c)
+        return expansion
+
 Head = HeadElement
 Title = TitleElement
 Base = BaseElement
