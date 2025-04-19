@@ -745,7 +745,7 @@ class ImageMapAreaElement(ClosedElement):
 
 Picture = PictureElement
 Source = SourceElement
-Image = ImageElement
+Img = ImageElement
 IFrame = InlineFrameElement
 Iframe = InlineFrameElement
 Embed = EmbeddedContentElement
