@@ -864,6 +864,55 @@ Dialog = DialogElement
 class ScriptElement(OpenElement):
     tag = "script"
 
+    def __init__(self, *args, escape_tag_delimiters = None, **kwargs):
+        if escape_tag_delimiters is None:
+            # javascript code might contain angle brackets,
+            # so it is better to disable tag delimiter escaping by default
+            escape_tag_delimiters = False
+        super().__init__(
+            *args,
+            escape_tag_delimiters=escape_tag_delimiters,
+            **kwargs
+        )
+
+    def expand(self, context: "ophinode.rendering.RenderContext"):
+        expansion = []
+        for c in self._children:
+            if isinstance(c, str):
+                # Due to restrictions for contents of script elements, some
+                # sequences of characters must be replaced before constructing
+                # a script element.
+                # 
+                # Unfortunately, correctly replacing such character sequences
+                # require a full lexical analysis on the script content, but
+                # ophinode is currently incapable of doing so.
+                #
+                # However, the sequences are expected to be rarely seen
+                # outside literals, so replacements are done nonetheless.
+                #
+                # This behavior might change in the later versions of ophinode
+                # when it starts to better support inline scripting.
+                #
+                # Read https://html.spec.whatwg.org/multipage/scripting.html#restrictions-for-contents-of-script-elements
+                # for more information.
+                #
+                content = c.replace(
+                    "<!--", "\\x3C!--"
+                ).replace(
+                    "<script", "\\x3Cscript"
+                ).replace(
+                    "</script", "\\x3C/script"
+                )
+                node = TextNode(content)
+                if self._escape_ampersands is not None:
+                    node.escape_ampersands(self._escape_ampersands)
+                if self._escape_tag_delimiters is not None:
+                    node.escape_tag_delimiters(self._escape_tag_delimiters)
+                expansion.append(node)
+            else:
+                expansion.append(c)
+        return expansion
+
 class NoScriptElement(OpenElement):
     tag = "noscript"
 
