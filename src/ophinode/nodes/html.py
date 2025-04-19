@@ -199,9 +199,14 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
     def __init__(
         self,
         *args,
+        cls = None,
+        className = None,
         class_name = None,
+        htmlFor = None,
         html_for = None,
+        htmlAs = None,
         html_as = None,
+        htmlAsync = None,
         html_async = None,
         accept_charset = None,
         escape_ampersands = None,
@@ -214,12 +219,22 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
             for c in children:
                 self._children.append(c)
         self._attributes = dict(kwargs)
+        if cls is not None:
+            self._attributes["class"] = cls
+        if className is not None:
+            self._attributes["class"] = className
         if class_name is not None:
             self._attributes["class"] = class_name
+        if htmlFor is not None:
+            self._attributes["for"] = htmlFor
         if html_for is not None:
             self._attributes["for"] = html_for
+        if htmlAs is not None:
+            self._attributes["as"] = htmlAs
         if html_as is not None:
             self._attributes["as"] = html_as
+        if htmlAsync is not None:
+            self._attributes["async"] = htmlAsync
         if html_async is not None:
             self._attributes["async"] = html_async
         if accept_charset is not None:
@@ -273,9 +288,14 @@ class ClosedElement(Element, ClosedRenderable):
     def __init__(
         self,
         *,
+        cls = None,
+        className = None,
         class_name = None,
+        htmlFor = None,
         html_for = None,
+        htmlAs = None,
         html_as = None,
+        htmlAsync = None,
         html_async = None,
         accept_charset = None,
         escape_ampersands = None,
@@ -283,12 +303,22 @@ class ClosedElement(Element, ClosedRenderable):
         **kwargs
     ):
         self._attributes = dict(kwargs)
+        if cls is not None:
+            self._attributes["class"] = cls
+        if className is not None:
+            self._attributes["class"] = className
         if class_name is not None:
             self._attributes["class"] = class_name
+        if htmlFor is not None:
+            self._attributes["for"] = htmlFor
         if html_for is not None:
             self._attributes["for"] = html_for
+        if htmlAs is not None:
+            self._attributes["as"] = htmlAs
         if html_as is not None:
             self._attributes["as"] = html_as
+        if htmlAsync is not None:
+            self._attributes["async"] = htmlAsync
         if html_async is not None:
             self._attributes["async"] = html_async
         if accept_charset is not None:
