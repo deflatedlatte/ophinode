@@ -432,6 +432,7 @@ H4 = HeadingLevel4Element
 H5 = HeadingLevel5Element
 H6 = HeadingLevel6Element
 HGroup = HeadingGroupElement
+Hgroup = HeadingGroupElement
 Header = HeaderElement
 Footer = FooterElement
 Address = AddressElement
@@ -492,17 +493,26 @@ class DivisionElement(OpenElement):
 
 P = ParagraphElement
 HR = HorizontalRuleElement
+Hr = HorizontalRuleElement
 Pre = PreformattedTextElement
 BlockQuote = BlockQuotationElement
+Blockquote = BlockQuotationElement
 OL = OrderedListElement
+Ol = OrderedListElement
 UL = UnorderedListElement
+Ul = UnorderedListElement
 Menu = MenuElement
 LI = ListItemElement
+Li = ListItemElement
 DL = DescriptionListElement
+Dl = DescriptionListElement
 DT = DescriptionTermElement
+Dt = DescriptionTermElement
 DD = DescriptionDetailsElement
+Dd = DescriptionDetailsElement
 Figure = FigureElement
 FigCaption = FigureCaptionElement
+Figcaption = FigureCaptionElement
 Main = MainElement
 Search = SearchElement
 Div = DivisionElement
@@ -624,6 +634,7 @@ class LineBreakOpportunityElement(ClosedElement):
 
 A = AnchorElement
 EM = EmphasisElement
+Em = EmphasisElement
 Strong = StrongImportanceElement
 Small = SmallPrintElement
 S = StrikethroughElement
@@ -633,7 +644,9 @@ Dfn = DefinitionElement
 Abbr = AbbreviationElement
 Ruby = RubyAnnotationElement
 RT = RubyTextElement
+Rt = RubyTextElement
 RP = RubyParenthesesElement
+Rp = RubyParenthesesElement
 Data = DataElement
 Time = TimeElement
 Code = CodeElement
@@ -647,10 +660,14 @@ B = BoldTextElement
 U = UnarticulatedAnnotationElement
 Mark = MarkedTextElement
 BDI = BidirectionalIsolateElement
+Bdi = BidirectionalIsolateElement
 BDO = BidirectionalOverrideElement
+Bdo = BidirectionalOverrideElement
 Span = SpanElement
 BR = LineBreakElement
+Br = LineBreakElement
 WBR = LineBreakOpportunityElement
+Wbr = LineBreakOpportunityElement
 
 # --- Edits ---
 
@@ -703,6 +720,7 @@ Picture = PictureElement
 Source = SourceElement
 Image = ImageElement
 IFrame = InlineFrameElement
+Iframe = InlineFrameElement
 Embed = EmbeddedContentElement
 Object = ExternalObjectElement
 Video = VideoElement
@@ -746,13 +764,20 @@ class TableHeaderCellElement(OpenElement):
 Table = TableElement
 Caption = TableCaptionElement
 ColGroup = TableColumnGroupElement
+Colgroup = TableColumnGroupElement
 Column = TableColumnElement
 TBody = TableBodyElement
+Tbody = TableBodyElement
 THead = TableHeadElement
+Thead = TableHeadElement
 TFoot = TableFootElement
+Tfoot = TableFootElement
 TR = TableRowElement
+Tr = TableRowElement
 TD = TableDataCellElement
+Td = TableDataCellElement
 TH = TableHeaderCellElement
+Th = TableHeaderCellElement
 
 # --- Forms ---
 
@@ -808,11 +833,14 @@ Input = InputElement
 Button = ButtonElement
 Select = SelectElement
 DataList = DataListElement
+Datalist = DataListElement
 OptGroup = OptionGroupElement
+Optgroup = OptionGroupElement
 Option = OptionElement
 Progress = ProgressElement
 Meter = MeterElement
 FieldSet = FieldSetElement
+Fieldset = FieldSetElement
 Legend = FieldSetLegendElement
 
 # --- Interactive elements ---
@@ -850,6 +878,7 @@ class CanvasElement(OpenElement):
 
 Script = ScriptElement
 NoScript = NoScriptElement
+Noscript = NoScriptElement
 Template = TemplateElement
 Slot = SlotElement
 Canvas = CanvasElement
