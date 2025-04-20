@@ -35,12 +35,7 @@ class Site:
             if not isinstance(pages, collections.abc.Iterable):
                 raise TypeError("pages must be an iterable")
             for path, page in pages:
-                if not isinstance(path, str):
-                    raise ValueError("path to a page must be a str")
-                if path in self._pages_dict:
-                    raise ValueError("duplicate page path: " + path)
-                self._pages_dict[path] = page
-                self._pages.append((path, page))
+                self.add_page(path, page)
 
         self._preprocessors_before_site_build = []
         self._postprocessors_after_site_build = []
@@ -148,6 +143,14 @@ class Site:
             AUTO_EXPORT_FILES_OPTION_KEY,
             AUTO_EXPORT_FILES_OPTION_DEFAULT_VALUE
         )
+
+    def add_page(self, path: str, page: Any):
+        if not isinstance(path, str):
+            raise TypeError("path to a page must be a str")
+        if path in self._pages_dict:
+            raise ValueError("duplicate page path: " + path)
+        self._pages_dict[path] = page
+        self._pages.append((path, page))
 
     def add_processor(
         self,
