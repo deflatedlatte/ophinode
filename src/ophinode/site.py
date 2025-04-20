@@ -183,10 +183,10 @@ class Site:
 
     def _prepare_site(self) -> RenderContext:
         context = RenderContext(self)
-        for path, page in self._pages:
-            context._page_data[path] = {}
         for processor in self._preprocessors_before_site_build:
             processor(context)
+        for path, page in self._pages:
+            context._page_data[path] = {}
         return context
 
     def _build_nodes(self, page: Any, context: RenderContext) -> Iterable:
