@@ -27,7 +27,7 @@ class HTML5Page(Page):
         return []
 
 class HTML5Layout(Layout):
-    def build(self, page: HTML5Page, context: "ophinode.rendering.RenderContext"):
+    def build(self, page: HTML5Page, context: "ophinode.rendering.BuildContext"):
         return [
             HTML5Doctype(),
             Html(
@@ -56,7 +56,7 @@ class TextNode(Node, ClosedRenderable):
         self._escape_ampersands = escape_ampersands
         self._escape_tag_delimiters = escape_tag_delimiters
 
-    def render(self, context: "ophinode.rendering.RenderContext"):
+    def render(self, context: "ophinode.rendering.BuildContext"):
         text_content = self._text_content
 
         escape_ampersands = self._escape_ampersands
@@ -82,25 +82,25 @@ class TextNode(Node, ClosedRenderable):
         return self
 
 class HTML5Doctype(Node, ClosedRenderable):
-    def render(self, context: "ophinode.rendering.RenderContext"):
+    def render(self, context: "ophinode.rendering.BuildContext"):
         return "<!doctype html>"
 
 class CDATASection(Node, OpenRenderable, Expandable, Preparable):
     def __init__(self, *args):
         self._children = list(args)
 
-    def prepare(self, context: "ophinode.rendering.RenderContext"):
+    def prepare(self, context: "ophinode.rendering.BuildContext"):
         for c in self._children:
             if isinstance(c, Preparable):
                 c.prepare(context)
 
-    def expand(self, context: "ophinode.rendering.RenderContext"):
+    def expand(self, context: "ophinode.rendering.BuildContext"):
         return self._children.copy()
 
-    def render_start(self, context: "ophinode.rendering.RenderContext"):
+    def render_start(self, context: "ophinode.rendering.BuildContext"):
         return "<![CDATA[".format(self.tag)
 
-    def render_end(self, context: "ophinode.rendering.RenderContext"):
+    def render_end(self, context: "ophinode.rendering.BuildContext"):
         return "]]>".format(self.tag)
 
     @property
@@ -119,18 +119,18 @@ class Comment(Node, OpenRenderable, Expandable, Preparable):
     def __init__(self, *args):
         self._children = list(args)
 
-    def prepare(self, context: "ophinode.rendering.RenderContext"):
+    def prepare(self, context: "ophinode.rendering.BuildContext"):
         for c in self._children:
             if isinstance(c, Preparable):
                 c.prepare(context)
 
-    def expand(self, context: "ophinode.rendering.RenderContext"):
+    def expand(self, context: "ophinode.rendering.BuildContext"):
         return self._children.copy()
 
-    def render_start(self, context: "ophinode.rendering.RenderContext"):
+    def render_start(self, context: "ophinode.rendering.BuildContext"):
         return "<!--".format(self.tag)
 
-    def render_end(self, context: "ophinode.rendering.RenderContext"):
+    def render_end(self, context: "ophinode.rendering.BuildContext"):
         return "-->".format(self.tag)
 
     @property
@@ -242,12 +242,12 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
         self._escape_ampersands = escape_ampersands
         self._escape_tag_delimiters = escape_tag_delimiters
 
-    def prepare(self, context: "ophinode.rendering.RenderContext"):
+    def prepare(self, context: "ophinode.rendering.BuildContext"):
         for c in self._children:
             if isinstance(c, Preparable):
                 c.prepare(context)
 
-    def expand(self, context: "ophinode.rendering.RenderContext"):
+    def expand(self, context: "ophinode.rendering.BuildContext"):
         expansion = []
         for c in self._children:
             if isinstance(c, str):
@@ -261,13 +261,13 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
                 expansion.append(c)
         return expansion
 
-    def render_start(self, context: "ophinode.rendering.RenderContext"):
+    def render_start(self, context: "ophinode.rendering.BuildContext"):
         rendered_attributes = self.render_attributes()
         if rendered_attributes:
             return "<{} {}>".format(self.tag, rendered_attributes)
         return "<{}>".format(self.tag)
 
-    def render_end(self, context: "ophinode.rendering.RenderContext"):
+    def render_end(self, context: "ophinode.rendering.BuildContext"):
         return "</{}>".format(self.tag)
 
     @property
@@ -326,7 +326,7 @@ class ClosedElement(Element, ClosedRenderable):
         self._escape_ampersands = escape_ampersands
         self._escape_tag_delimiters = escape_tag_delimiters
 
-    def render(self, context: "ophinode.rendering.RenderContext"):
+    def render(self, context: "ophinode.rendering.BuildContext"):
         rendered_attributes = self.render_attributes()
         if rendered_attributes:
             return "<{} {}>".format(self.tag, rendered_attributes)
@@ -371,7 +371,7 @@ class StyleElement(OpenElement):
             **kwargs
         )
 
-    def expand(self, context: "ophinode.rendering.RenderContext"):
+    def expand(self, context: "ophinode.rendering.BuildContext"):
         expansion = []
         for c in self._children:
             if isinstance(c, str):
@@ -902,7 +902,7 @@ class ScriptElement(OpenElement):
             **kwargs
         )
 
-    def expand(self, context: "ophinode.rendering.RenderContext"):
+    def expand(self, context: "ophinode.rendering.BuildContext"):
         expansion = []
         for c in self._children:
             if isinstance(c, str):

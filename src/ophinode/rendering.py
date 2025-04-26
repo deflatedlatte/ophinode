@@ -3,7 +3,7 @@ from typing import Union
 
 from .nodes.base import *
 
-class RenderContext:
+class BuildContext:
     def __init__(self, site: "ophinode.site.Site"):
         self._site = site
         self._current_page = None
@@ -74,7 +74,7 @@ class RenderNode:
     def parent(self):
         return self._parent
 
-    def render(self, context: RenderContext):
+    def render(self, context: BuildContext):
         result = []
         depth = 0
         stk = collections.deque()

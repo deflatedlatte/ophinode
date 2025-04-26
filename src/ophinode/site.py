@@ -10,7 +10,7 @@ from .exceptions import *
 from .constants import *
 from .nodes.base import *
 from .nodes.html import TextNode, HTML5Layout
-from .rendering import RenderContext, RenderNode
+from .rendering import BuildContext, RenderNode
 
 class _StackDelimiter:
     pass
@@ -21,7 +21,7 @@ class Site:
         options: Union[collections.abc.Mapping, None] = None,
         pages: Union[Iterable[Tuple[str, Any]], None] = None,
         processors: Union[
-            Iterable[Tuple[str, Callable[["RenderContext"], None]]],
+            Iterable[Tuple[str, Callable[["BuildContext"], None]]],
             None
         ] = None,
     ):
@@ -155,7 +155,7 @@ class Site:
     def add_processor(
         self,
         stage: str,
-        processor: Callable[["RenderContext"], None]
+        processor: Callable[["BuildContext"], None]
     ):
         if not isinstance(stage, str):
             raise ValueError("processor stage must be a str")
@@ -184,15 +184,15 @@ class Site:
         else:
             raise ValueError("invalid rendering stage: '{}'".format(stage))
 
-    def _prepare_site(self) -> RenderContext:
-        context = RenderContext(self)
+    def _prepare_site(self) -> BuildContext:
+        context = BuildContext(self)
         for processor in self._preprocessors_before_site_build:
             processor(context)
         for path, page in self._pages:
             context._page_data[path] = {}
         return context
 
-    def _build_nodes(self, page: Any, context: RenderContext) -> Iterable:
+    def _build_nodes(self, page: Any, context: BuildContext) -> Iterable:
         layout = None
         if hasattr(page, "layout"):
             layout = page.layout
@@ -231,19 +231,19 @@ class Site:
         for processor in self._postprocessors_after_page_build_stage:
             processor(context)
 
-    def _prepare_nodes(self, page_built: Iterable, context: RenderContext):
+    def _prepare_nodes(self, page_built: Iterable, context: BuildContext):
         for node in page_built:
             if isinstance(node, Preparable):
                 node.prepare(context)
 
-    def _prepare_page(self, path: str, page: Any, context: RenderContext):
+    def _prepare_page(self, path: str, page: Any, context: BuildContext):
         context._current_page_path = path
         context._current_page = page
         self._prepare_nodes(context.built_pages[path], context)
         context._current_page = None
         context._current_page_path = None
 
-    def _prepare_pages(self, context: RenderContext):
+    def _prepare_pages(self, context: BuildContext):
         for processor in self._preprocessors_before_page_preparation_stage:
             processor(context)
         for path, page in self._pages:
@@ -254,7 +254,7 @@ class Site:
     def _expand_nodes(
         self,
         page_built: Iterable,
-        context: RenderContext
+        context: BuildContext
     ) -> RenderNode:
         root_node = RenderNode(None)
         curr = root_node
@@ -292,7 +292,7 @@ class Site:
 
         return root_node
 
-    def _expand_page(self, path: str, page: Any, context: RenderContext):
+    def _expand_page(self, path: str, page: Any, context: BuildContext):
         context._current_page_path = path
         context._current_page = page
         root_node = self._expand_nodes(context.built_pages[path], context)
@@ -300,7 +300,7 @@ class Site:
         context._current_page = None
         context._current_page_path = None
 
-    def _expand_pages(self, context: RenderContext):
+    def _expand_pages(self, context: BuildContext):
         for processor in self._preprocessors_before_page_expansion_stage:
             processor(context)
         for path, page in self._pages:
@@ -308,7 +308,7 @@ class Site:
         for processor in self._postprocessors_after_page_expansion_stage:
             processor(context)
 
-    def _render_page(self, path: str, page: Any, context: RenderContext):
+    def _render_page(self, path: str, page: Any, context: BuildContext):
         context._current_page_path = path
         context._current_page = page
         root_node = context.expanded_pages[path]
@@ -317,7 +317,7 @@ class Site:
         context._current_page = None
         context._current_page_path = None
 
-    def _render_pages(self, context: RenderContext):
+    def _render_pages(self, context: BuildContext):
         for processor in self._preprocessors_before_page_rendering_stage:
             processor(context)
         for path, page in self._pages:
@@ -325,7 +325,7 @@ class Site:
         for processor in self._postprocessors_after_page_rendering_stage:
             processor(context)
 
-    def _finalize_site(self, context: RenderContext):
+    def _finalize_site(self, context: BuildContext):
         for path, render_result in context.rendered_pages.items():
             page_path = path
             if path.endswith("/"):
@@ -358,7 +358,7 @@ class Site:
         for processor in self._postprocessors_after_site_build:
             processor(context)
 
-    def _export_files(self, context: RenderContext):
+    def _export_files(self, context: BuildContext):
         # Check if export_root_path has been set
         if not self.export_root_path:
             raise RootPathUndefinedError(
