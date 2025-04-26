@@ -3,59 +3,6 @@ from typing import Union
 
 from .nodes.base import *
 
-class BuildContext:
-    def __init__(self, site: "ophinode.site.Site"):
-        self._site = site
-        self._current_page = None
-        self._current_page_path = None
-        self._site_data = {}
-        self._page_data = {}
-        self._built_pages = {}
-        self._expanded_pages = {}
-        self._rendered_pages = {}
-        self._exported_files = {}
-
-    @property
-    def site(self):
-        return self._site
-
-    @property
-    def current_page(self):
-        return self._current_page
-
-    @property
-    def current_page_path(self):
-        return self._current_page_path
-
-    @property
-    def site_data(self):
-        return self._site_data
-
-    @property
-    def page_data(self):
-        return self._page_data.get(self._current_page_path)
-
-    def get_page_data(self, path: str = None):
-        return self._page_data.get(
-            path if path is not None else self._current_page_path
-        )
-
-    @property
-    def built_pages(self):
-        return self._built_pages
-
-    @property
-    def expanded_pages(self):
-        return self._expanded_pages
-
-    @property
-    def rendered_pages(self):
-        return self._rendered_pages
-
-    @property
-    def exported_files(self):
-        return self._exported_files
-
 class RenderNode:
     def __init__(self, value: Union[OpenRenderable, ClosedRenderable, None]):
         self._value = value
@@ -74,7 +21,7 @@ class RenderNode:
     def parent(self):
         return self._parent
 
-    def render(self, context: BuildContext):
+    def render(self, context: "ophinode.site.BuildContext"):
         result = []
         depth = 0
         stk = collections.deque()

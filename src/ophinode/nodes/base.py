@@ -3,16 +3,16 @@ from abc import ABC, abstractmethod
 
 class ClosedRenderable(ABC):
     @abstractmethod
-    def render(self, context: "ophinode.rendering.BuildContext"):
+    def render(self, context: "ophinode.site.BuildContext"):
         pass
 
 class OpenRenderable(ABC):
     @abstractmethod
-    def render_start(self, context: "ophinode.rendering.BuildContext"):
+    def render_start(self, context: "ophinode.site.BuildContext"):
         pass
 
     @abstractmethod
-    def render_end(self, context: "ophinode.rendering.BuildContext"):
+    def render_end(self, context: "ophinode.site.BuildContext"):
         pass
 
     @property
@@ -25,12 +25,12 @@ class OpenRenderable(ABC):
 
 class Expandable(ABC):
     @abstractmethod
-    def expand(self, context: "ophinode.rendering.BuildContext"):
+    def expand(self, context: "ophinode.site.BuildContext"):
         pass
 
 class Preparable(ABC):
     @abstractmethod
-    def prepare(self, context: "ophinode.rendering.BuildContext"):
+    def prepare(self, context: "ophinode.site.BuildContext"):
         pass
 
 class Page:
@@ -40,6 +40,6 @@ class Page:
 
 class Layout(ABC):
     @abstractmethod
-    def build(self, page: Any, context: "ophinode.rendering.BuildContext"):
+    def build(self, page: Any, context: "ophinode.site.BuildContext"):
         pass
 
