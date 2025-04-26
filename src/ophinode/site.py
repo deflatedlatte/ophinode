@@ -36,6 +36,9 @@ class BuildPhase(enum.Enum):
     PRE_FINALIZE_SITE = 19
     FINALIZE_SITE = 20
     POST_FINALIZE_SITE = 21
+    PRE_WRITE_EXPORTED_FILES = 22
+    WRITE_EXPORTED_FILES = 23
+    POST_WRITE_EXPORTED_FILES = 24
 
 class BuildContext:
     def __init__(self, site: "ophinode.site.Site"):
@@ -130,6 +133,8 @@ class Site:
         self._postprocessors_after_page_rendering_stage = []
         self._preprocessors_before_site_finalization_stage = []
         self._postprocessors_after_site_finalization_stage = []
+        self._preprocessors_before_file_write_stage = []
+        self._postprocessors_after_file_write_stage = []
         if processors is not None:
             if not isinstance(processors, collections.abc.Iterable):
                 raise TypeError("processors must be an iterable")
@@ -272,6 +277,10 @@ class Site:
             self._preprocessors_before_site_finalization_stage.append(processor)
         elif stage == "post_finalize_site":
             self._postprocessors_after_site_finalization_stage.append(processor)
+        elif stage == "pre_write_exported_files":
+            self._preprocessors_before_file_write_stage.append(processor)
+        elif stage == "post_write_exported_files":
+            self._postprocessors_after_file_write_stage.append(processor)
         else:
             raise ValueError("invalid processor stage: '{}'".format(stage))
 
@@ -298,6 +307,8 @@ class Site:
             self._preprocessors_before_page_rendering_stage.append(processor)
         elif stage == "finalize_site":
             self._preprocessors_before_site_finalization_stage.append(processor)
+        elif stage == "write_exported_files":
+            self._preprocessors_before_file_write_stage.append(processor)
         else:
             raise ValueError("invalid build stage: '{}'".format(stage))
 
@@ -324,6 +335,8 @@ class Site:
             self._postprocessors_after_page_rendering_stage.append(processor)
         elif stage == "finalize_site":
             self._postprocessors_after_site_finalization_stage.append(processor)
+        elif stage == "write_exported_files":
+            self._postprocessors_after_file_write_stage.append(processor)
         else:
             raise ValueError("invalid build stage: '{}'".format(stage))
 
@@ -488,7 +501,7 @@ class Site:
                 )
             context.exported_files[page_path] = render_result
 
-    def export_files(self, context: BuildContext):
+    def write_exported_files(self, context: BuildContext):
         # Check if export_root_path has been set
         if not self.export_root_path:
             raise RootPathUndefinedError(
@@ -587,7 +600,11 @@ class Site:
             processor(context)
 
         if self.auto_export_files:
-            self.export_files(context)
+            for processor in self._preprocessors_before_file_write_stage:
+                processor(context)
+            self.write_exported_files(context)
+            for processor in self._postprocessors_after_file_write_stage:
+                processor(context)
         return context
 
 def render_page(page: Any, default_layout: Union[Layout, None] = None):
