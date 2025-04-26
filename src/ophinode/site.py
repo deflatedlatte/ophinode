@@ -37,16 +37,20 @@ class Site:
             for path, page in pages:
                 self.add_page(path, page)
 
-        self._preprocessors_before_site_build = []
-        self._postprocessors_after_site_build = []
+        self._preprocessors_before_site_preparation_stage = []
+        self._postprocessors_after_site_preparation_stage = []
+        self._preprocessors_before_page_build_preparation_stage = []
+        self._postprocessors_after_page_build_preparation_stage = []
         self._preprocessors_before_page_build_stage = []
         self._postprocessors_after_page_build_stage = []
-        self._preprocessors_before_page_preparation_stage = []
-        self._postprocessors_after_page_preparation_stage = []
+        self._preprocessors_before_page_expansion_preparation_stage = []
+        self._postprocessors_after_page_expansion_preparation_stage = []
         self._preprocessors_before_page_expansion_stage = []
         self._postprocessors_after_page_expansion_stage = []
         self._preprocessors_before_page_rendering_stage = []
         self._postprocessors_after_page_rendering_stage = []
+        self._preprocessors_before_site_finalization_stage = []
+        self._postprocessors_after_site_finalization_stage = []
         if processors is not None:
             if not isinstance(processors, collections.abc.Iterable):
                 raise TypeError("processors must be an iterable")
@@ -161,38 +165,123 @@ class Site:
             raise ValueError("processor stage must be a str")
         if not callable(processor):
             raise TypeError("processor must be a callable")
-        if stage == "pre_site_build":
-            self._preprocessors_before_site_build.append(processor)
-        elif stage == "post_site_build":
-            self._postprocessors_after_site_build.append(processor)
-        elif stage == "pre_page_build":
+        if stage == "pre_prepare_site":
+            self._preprocessors_before_site_preparation_stage.append(processor)
+        elif stage == "post_prepare_site":
+            self._postprocessors_after_site_preparation_stage.append(processor)
+        elif stage == "pre_prepare_page_build":
+            self._preprocessors_before_page_build_preparation_stage.append(processor)
+        elif stage == "post_prepare_page_build":
+            self._postprocessors_after_page_build_preparation_stage.append(processor)
+        elif stage == "pre_build_pages":
             self._preprocessors_before_page_build_stage.append(processor)
-        elif stage == "post_page_build":
+        elif stage == "post_build_pages":
             self._postprocessors_after_page_build_stage.append(processor)
-        elif stage == "pre_page_preparation":
-            self._preprocessors_before_page_preparation_stage.append(processor)
-        elif stage == "post_page_preparation":
-            self._postprocessors_after_page_preparation_stage.append(processor)
-        elif stage == "pre_page_expansion":
+        elif stage == "pre_prepare_page_expansion":
+            self._preprocessors_before_page_expansion_preparation_stage.append(processor)
+        elif stage == "post_prepare_page_expansion":
+            self._postprocessors_after_page_expansion_preparation_stage.append(processor)
+        elif stage == "pre_expand_pages":
             self._preprocessors_before_page_expansion_stage.append(processor)
-        elif stage == "post_page_expansion":
+        elif stage == "post_expand_pages":
             self._postprocessors_after_page_expansion_stage.append(processor)
-        elif stage == "pre_page_rendering":
+        elif stage == "pre_render_pages":
             self._preprocessors_before_page_rendering_stage.append(processor)
-        elif stage == "post_page_rendering":
+        elif stage == "post_render_pages":
             self._postprocessors_after_page_rendering_stage.append(processor)
+        elif stage == "pre_finalize_site":
+            self._preprocessors_before_site_finalization_stage.append(processor)
+        elif stage == "post_finalize_site":
+            self._postprocessors_after_site_finalization_stage.append(processor)
         else:
-            raise ValueError("invalid rendering stage: '{}'".format(stage))
+            raise ValueError("invalid processor stage: '{}'".format(stage))
 
-    def _prepare_site(self) -> BuildContext:
-        context = BuildContext(self)
-        for processor in self._preprocessors_before_site_build:
-            processor(context)
+    def add_preprocessor(
+        self,
+        stage: str,
+        processor: Callable[["BuildContext"], None]
+    ):
+        if not isinstance(stage, str):
+            raise ValueError("processor stage must be a str")
+        if not callable(processor):
+            raise TypeError("processor must be a callable")
+        if stage == "prepare_site":
+            self._preprocessors_before_site_preparation_stage.append(processor)
+        elif stage == "prepare_page_build":
+            self._preprocessors_before_page_build_preparation_stage.append(processor)
+        elif stage == "build_pages":
+            self._preprocessors_before_page_build_stage.append(processor)
+        elif stage == "prepare_page_expansion":
+            self._preprocessors_before_page_expansion_preparation_stage.append(processor)
+        elif stage == "expand_pages":
+            self._preprocessors_before_page_expansion_stage.append(processor)
+        elif stage == "render_pages":
+            self._preprocessors_before_page_rendering_stage.append(processor)
+        elif stage == "finalize_site":
+            self._preprocessors_before_site_finalization_stage.append(processor)
+        else:
+            raise ValueError("invalid build stage: '{}'".format(stage))
+
+    def add_postprocessor(
+        self,
+        stage: str,
+        processor: Callable[["BuildContext"], None]
+    ):
+        if not isinstance(stage, str):
+            raise ValueError("processor stage must be a str")
+        if not callable(processor):
+            raise TypeError("processor must be a callable")
+        if stage == "prepare_site":
+            self._postprocessors_after_site_preparation_stage.append(processor)
+        elif stage == "prepare_page_build":
+            self._postprocessors_after_page_build_preparation_stage.append(processor)
+        elif stage == "build_pages":
+            self._postprocessors_after_page_build_stage.append(processor)
+        elif stage == "prepare_page_expansion":
+            self._postprocessors_after_page_expansion_preparation_stage.append(processor)
+        elif stage == "expand_pages":
+            self._postprocessors_after_page_expansion_stage.append(processor)
+        elif stage == "render_pages":
+            self._postprocessors_after_page_rendering_stage.append(processor)
+        elif stage == "finalize_site":
+            self._postprocessors_after_site_finalization_stage.append(processor)
+        else:
+            raise ValueError("invalid build stage: '{}'".format(stage))
+
+    def create_build_context(self) -> BuildContext:
+        return BuildContext(self)
+
+    def prepare_site(self, context: BuildContext) -> BuildContext:
         for path, page in self._pages:
             context._page_data[path] = {}
+            if hasattr(page, "prepare_site") and callable(page.prepare_site):
+                context._current_page_path = path
+                context._current_page = page
+                page.prepare_site(context)
+                context._current_page = None
+                context._current_page_path = None
         return context
 
-    def _build_nodes(self, page: Any, context: BuildContext) -> Iterable:
+    def prepare_page_build(self, context: BuildContext) -> BuildContext:
+        for path, page in self._pages:
+            if hasattr(page, "prepare_page") and callable(page.prepare_page):
+                context._current_page_path = path
+                context._current_page = page
+                page.prepare_page(context)
+                context._current_page = None
+                context._current_page_path = None
+        return context
+
+    def build_pages(self, context: BuildContext) -> BuildContext:
+        for path, page in self._pages:
+            context._current_page_path = path
+            context._current_page = page
+            context.built_pages[path] = self.build_page(path, page, context)
+            context._current_page = None
+            context._current_page_path = None
+        return context
+
+    def build_page(self, path: str, page: Any, context: BuildContext):
         layout = None
         if hasattr(page, "layout"):
             layout = page.layout
@@ -216,42 +305,27 @@ class Site:
 
         return layout.build(page, context)
 
-    def _build_page(self, path, page, context):
-        context._current_page_path = path
-        context._current_page = page
-        context.built_pages[path] = self._build_nodes(page, context)
-        context._current_page = None
-        context._current_page_path = None
-
-    def _build_pages(self, context):
-        for processor in self._preprocessors_before_page_build_stage:
-            processor(context)
+    def prepare_page_expansion(self, context: BuildContext):
         for path, page in self._pages:
-            self._build_page(path, page, context)
-        for processor in self._postprocessors_after_page_build_stage:
-            processor(context)
-
-    def _prepare_nodes(self, page_built: Iterable, context: BuildContext):
-        for node in page_built:
+            node = context.built_pages[path]
             if isinstance(node, Preparable):
+                context._current_page_path = path
+                context._current_page = page
                 node.prepare(context)
+                context._current_page = None
+                context._current_page_path = None
 
-    def _prepare_page(self, path: str, page: Any, context: BuildContext):
-        context._current_page_path = path
-        context._current_page = page
-        self._prepare_nodes(context.built_pages[path], context)
-        context._current_page = None
-        context._current_page_path = None
-
-    def _prepare_pages(self, context: BuildContext):
-        for processor in self._preprocessors_before_page_preparation_stage:
-            processor(context)
+    def expand_pages(self, context: BuildContext):
         for path, page in self._pages:
-            self._prepare_page(path, page, context)
-        for processor in self._postprocessors_after_page_preparation_stage:
-            processor(context)
+            context._current_page_path = path
+            context._current_page = page
+            context.expanded_pages[path] = self.expand_nodes(
+                context.built_pages[path], context
+            )
+            context._current_page = None
+            context._current_page_path = None
 
-    def _expand_nodes(
+    def expand_nodes(
         self,
         page_built: Iterable,
         context: BuildContext
@@ -292,40 +366,20 @@ class Site:
 
         return root_node
 
-    def _expand_page(self, path: str, page: Any, context: BuildContext):
-        context._current_page_path = path
-        context._current_page = page
-        root_node = self._expand_nodes(context.built_pages[path], context)
-        context.expanded_pages[path] = root_node
-        context._current_page = None
-        context._current_page_path = None
-
-    def _expand_pages(self, context: BuildContext):
-        for processor in self._preprocessors_before_page_expansion_stage:
-            processor(context)
+    def render_pages(self, context: BuildContext):
         for path, page in self._pages:
-            self._expand_page(path, page, context)
-        for processor in self._postprocessors_after_page_expansion_stage:
-            processor(context)
+            context._current_page_path = path
+            context._current_page = page
+            context.rendered_pages[path] = self.render_page(path, page, context)
+            context._current_page = None
+            context._current_page_path = None
 
-    def _render_page(self, path: str, page: Any, context: BuildContext):
-        context._current_page_path = path
-        context._current_page = page
+    def render_page(self, path: str, page: Any, context: BuildContext):
         root_node = context.expanded_pages[path]
         render_result = root_node.render(context)
-        context.rendered_pages[path] = render_result
-        context._current_page = None
-        context._current_page_path = None
+        return render_result
 
-    def _render_pages(self, context: BuildContext):
-        for processor in self._preprocessors_before_page_rendering_stage:
-            processor(context)
-        for path, page in self._pages:
-            self._render_page(path, page, context)
-        for processor in self._postprocessors_after_page_rendering_stage:
-            processor(context)
-
-    def _finalize_site(self, context: BuildContext):
+    def finalize_site(self, context: BuildContext):
         for path, render_result in context.rendered_pages.items():
             page_path = path
             if path.endswith("/"):
@@ -355,10 +409,7 @@ class Site:
                 )
             context.exported_files[page_path] = render_result
 
-        for processor in self._postprocessors_after_site_build:
-            processor(context)
-
-    def _export_files(self, context: BuildContext):
+    def export_files(self, context: BuildContext):
         # Check if export_root_path has been set
         if not self.export_root_path:
             raise RootPathUndefinedError(
@@ -406,15 +457,58 @@ class Site:
                 with target_path.open(mode="w", encoding="utf-8") as f:
                     json.dump(file_content, f, indent=2)
 
-    def build_site(self):
-        context = self._prepare_site()
-        self._build_pages(context)
-        self._prepare_pages(context)
-        self._expand_pages(context)
-        self._render_pages(context)
-        self._finalize_site(context)
+    def build_site(self, context: Union[BuildContext, None] = None):
+        if context is None:
+            context = self.create_build_context()
+        elif not isinstance(context, BuildContext):
+            raise TypeError("context must be a BuildContext or None, not {}".format(context.__class__.__name__))
+        elif context._site != self:
+            raise ValueError("the context is not pointing to the site you are trying to build")
+
+        for processor in self._preprocessors_before_site_preparation_stage:
+            processor(context)
+        self.prepare_site(context)
+        for processor in self._postprocessors_after_site_preparation_stage:
+            processor(context)
+
+        for processor in self._preprocessors_before_page_build_preparation_stage:
+            processor(context)
+        self.prepare_page_build(context)
+        for processor in self._postprocessors_after_page_build_preparation_stage:
+            processor(context)
+
+        for processor in self._preprocessors_before_page_build_stage:
+            processor(context)
+        self.build_pages(context)
+        for processor in self._postprocessors_after_page_build_stage:
+            processor(context)
+
+        for processor in self._preprocessors_before_page_expansion_preparation_stage:
+            processor(context)
+        self.prepare_page_expansion(context)
+        for processor in self._postprocessors_after_page_expansion_preparation_stage:
+            processor(context)
+
+        for processor in self._preprocessors_before_page_expansion_stage:
+            processor(context)
+        self.expand_pages(context)
+        for processor in self._postprocessors_after_page_expansion_stage:
+            processor(context)
+
+        for processor in self._preprocessors_before_page_rendering_stage:
+            processor(context)
+        self.render_pages(context)
+        for processor in self._postprocessors_after_page_rendering_stage:
+            processor(context)
+
+        for processor in self._preprocessors_before_site_finalization_stage:
+            processor(context)
+        self.finalize_site(context)
+        for processor in self._postprocessors_after_site_finalization_stage:
+            processor(context)
+
         if self.auto_export_files:
-            self._export_files(context)
+            self.export_files(context)
         return context
 
 def render_page(page: Any, default_layout: Union[Layout, None] = None):
