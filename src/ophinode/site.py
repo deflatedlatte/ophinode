@@ -1,6 +1,7 @@
 import json
 import os.path
 import pathlib
+import enum
 import collections
 import collections.abc
 from abc import ABC, abstractmethod
@@ -12,11 +13,33 @@ from .nodes.base import *
 from .nodes.html import TextNode, HTML5Layout
 from .rendering import RenderNode
 
-class _StackDelimiter:
-    pass
+class BuildPhase(enum.Enum):
+    INIT = 0
+    PRE_PREPARE_SITE = 1
+    PREPARE_SITE = 2
+    POST_PREPARE_SITE = 3
+    PRE_PREPARE_PAGE_BUILD = 4
+    PREPARE_PAGE_BUILD = 5
+    POST_PREPARE_PAGE_BUILD = 6
+    PRE_BUILD_PAGES = 7
+    BUILD_PAGES = 8
+    POST_BUILD_PAGES = 9
+    PRE_PREPARE_PAGE_EXPANSION = 10
+    PREPARE_PAGE_EXPANSION = 11
+    POST_PREPARE_PAGE_EXPANSION = 12
+    PRE_EXPAND_PAGES = 13
+    EXPAND_PAGES = 14
+    POST_EXPAND_PAGES = 15
+    PRE_RENDER_PAGES = 16
+    RENDER_PAGES = 17
+    POST_RENDER_PAGES = 18
+    PRE_FINALIZE_SITE = 19
+    FINALIZE_SITE = 20
+    POST_FINALIZE_SITE = 21
 
 class BuildContext:
     def __init__(self, site: "ophinode.site.Site"):
+        self._phase = BuildPhase.INIT
         self._site = site
         self._current_page = None
         self._current_page_path = None
@@ -67,6 +90,9 @@ class BuildContext:
     @property
     def exported_files(self):
         return self._exported_files
+
+class _StackDelimiter:
+    pass
 
 class Site:
     def __init__(
