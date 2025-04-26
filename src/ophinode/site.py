@@ -157,8 +157,8 @@ class Site:
                 self.set_default_page_output_filename(v)
             elif k == PAGE_OUTPUT_FILE_EXTENSION_OPTION_KEY:
                 self.set_page_output_file_extension(v)
-            elif k == AUTO_EXPORT_FILES_OPTION_KEY:
-                self.set_auto_export_files(v)
+            elif k == AUTO_WRITE_EXPORTED_FILES_OPTION_KEY:
+                self.set_auto_write_exported_files(v)
             elif not ignore_invalid_keys:
                 raise ValueError("unknown option key: {}".format(k))
 
@@ -222,14 +222,14 @@ class Site:
             PAGE_OUTPUT_FILE_EXTENSION_OPTION_DEFAULT_VALUE
         )
 
-    def set_auto_export_files(self, auto_export_files: bool):
-        self._options[AUTO_EXPORT_FILES_OPTION_KEY] = bool(auto_export_files)
+    def set_auto_write_exported_files(self, auto_write_exported_files: bool):
+        self._options[AUTO_WRITE_EXPORTED_FILES_OPTION_KEY] = bool(auto_write_exported_files)
 
     @property
-    def auto_export_files(self) -> bool:
+    def auto_write_exported_files(self) -> bool:
         return self._options.get(
-            AUTO_EXPORT_FILES_OPTION_KEY,
-            AUTO_EXPORT_FILES_OPTION_DEFAULT_VALUE
+            AUTO_WRITE_EXPORTED_FILES_OPTION_KEY,
+            AUTO_WRITE_EXPORTED_FILES_OPTION_DEFAULT_VALUE
         )
 
     def add_page(self, path: str, page: Any):
@@ -599,7 +599,7 @@ class Site:
         for processor in self._postprocessors_after_site_finalization_stage:
             processor(context)
 
-        if self.auto_export_files:
+        if self.auto_write_exported_files:
             for processor in self._preprocessors_before_file_write_stage:
                 processor(context)
             self.write_exported_files(context)
@@ -610,7 +610,7 @@ class Site:
 def render_page(page: Any, default_layout: Union[Layout, None] = None):
     options = {
         EXPORT_ROOT_PATH_OPTION_KEY: "/",
-        AUTO_EXPORT_FILES_OPTION_KEY: False,
+        AUTO_WRITE_EXPORTED_FILES_OPTION_KEY: False,
     }
     if default_layout is not None:
         options[DEFAULT_LAYOUT_OPTION_KEY] = default_layout
