@@ -65,7 +65,7 @@ if __name__ == "__main__":
     site = Site({
         "default_layout": DefaultLayout(),
         "export_root_path": "./out",
-        "default_page_output_filename": "index.html",
+        "page_output_default_filename": "index.html",
     }, [
         ("/", MainPage()),
     ])

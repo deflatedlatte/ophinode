@@ -1,7 +1,7 @@
 import collections
 from typing import Union
 
-from .nodes.base import *
+from ophinode.nodes.base import *
 
 class RenderNode:
     def __init__(self, value: Union[OpenRenderable, ClosedRenderable, None]):
