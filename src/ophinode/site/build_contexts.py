@@ -143,7 +143,7 @@ class BuildContext:
             path, page = page_def.path, page_def.page
             layout = self._resolve_layout(path, page)
             self._set_current_page(path, page)
-            self.set_built_page(path, layout.build(page, self))
+            self._built_pages[path] = layout.build(page, self)
             self._unset_current_page()
         return self
 
@@ -213,9 +213,9 @@ class BuildContext:
         for page_def in self._page_group._pages:
             path, page = page_def.path, page_def.page
             self._set_current_page(path, page)
-            self.set_expanded_page(path, self._expand_page(
+            self._expanded_pages[path] = self._expand_page(
                 self.get_built_page(path)
-            ))
+            )
             self._unset_current_page()
 
     def _expand_page(self, page_built: Iterable) -> RenderNode:
@@ -272,7 +272,7 @@ class BuildContext:
         for page_def in self._page_group._pages:
             path, page = page_def.path, page_def.page
             self._set_current_page(path, page)
-            self.set_rendered_page(path, self._render_page(path, page))
+            self._rendered_pages[path] = self._render_page(path, page)
             self._unset_current_page()
 
     def _render_page(self, path: str, page: Any):

@@ -75,7 +75,8 @@ class Page:
         ):
             export_path += page_default_file_name_suffix
 
-        return export_path
+        render_result = context.get_rendered_page(context.current_page_path)
+        context.export_file(export_path, render_result)
 
     def finalize_page(self, context: "ophinode.site.BuildContext"):
         pass
