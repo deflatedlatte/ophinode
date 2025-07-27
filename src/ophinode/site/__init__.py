@@ -1,1 +1,1 @@
-from .site import Site, render_page
+from .core import Site, render_page

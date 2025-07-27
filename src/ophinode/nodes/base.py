@@ -38,34 +38,50 @@ class Page:
     def layout(self):
         return None
 
-    def export(self, context: "ophinode.site.BuildContext", page_path: str):
-        export_path = page_path
-        page_output_file_extension = context.get_config_value("page_output_file_extension")
+    @property
+    def default_file_name(self):
+        return None
 
-        if export_path.endswith("/"):
-            export_path += context.get_config_value("page_output_default_filename")
-        elif page_output_file_extension:
-            fname = export_path[export_path.rfind("/")+1:]
-            dot_index = fname.rfind(".")
-            if (
-                (
-                    # dot is not found at all,
-                    dot_index == -1
-                    # or default extension is already there
-                    or fname[dot_index+1:]
-                       != page_output_file_extension
-                )
-                and
-                (
-                    # the rightmost dot is not the first (or last) character
-                    dot_index != 0
-                    and (fname and dot_index != len(fname)-1)
-                )
-            ):
-                export_path += "." + page_output_file_extension
+    @property
+    def default_file_name_suffix(self):
+        return None
 
-        render_result = context.get_rendered_page(page_path)
-        context.export_file(export_path, render_result)
+    def prepare_site(self, context: "ophinode.site.BuildContext"):
+        pass
+
+    def prepare_page(self, context: "ophinode.site.BuildContext"):
+        pass
+
+    def export_page(self, context: "ophinode.site.BuildContext"):
+        export_path = context.current_page_path
+
+        page_default_file_name = self.default_file_name
+        if page_default_file_name is None:
+            page_default_file_name = context.get_config_value(
+                "page_default_file_name"
+            )
+        if export_path.endswith("/") and page_default_file_name is not None:
+            export_path += page_default_file_name
+
+        page_default_file_name_suffix = self.default_file_name_suffix
+        if page_default_file_name_suffix is None:
+            page_default_file_name_suffix = context.get_config_value(
+                "page_default_file_name_suffix"
+            )
+        if (
+            not export_path.endswith("/")
+            and page_default_file_name_suffix is not None
+            and not export_path.endswith(page_default_file_name_suffix)
+        ):
+            export_path += page_default_file_name_suffix
+
+        return export_path
+
+    def finalize_page(self, context: "ophinode.site.BuildContext"):
+        pass
+
+    def finalize_site(self, context: "ophinode.site.BuildContext"):
+        pass
 
 class Layout(ABC):
     @abstractmethod

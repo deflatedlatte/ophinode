@@ -1,8 +1,25 @@
 import sys
+from typing import Any
 if sys.version_info.major == 3 and sys.version_info.minor < 9:
-    from typing import Callable
+    from typing import Callable, Mapping, Iterable
 else:
-    from collections.abc import Callable
+    from collections.abc import Callable, Mapping, Iterable
+
+PAGE_GROUP_CONFIG_DEFAULT_VALUES = {
+    "export_root_path"                       : "",
+    "default_layout"                         : None,
+    "page_default_file_name"                 : "index.html",
+    "page_default_file_name_suffix"          : ".html",
+    "auto_write_exported_page_build_files"   : False,
+    "return_site_data_after_page_build"      : False,
+    "return_page_data_after_page_build"      : False,
+    "return_misc_data_after_page_build"      : True,
+    "return_built_pages_after_page_build"    : False,
+    "return_expanded_pages_after_page_build" : False,
+    "return_rendered_pages_after_page_build" : False,
+    "return_exported_files_after_page_build" : False,
+}
+PAGE_GROUP_CONFIG_KEYS = set(PAGE_GROUP_CONFIG_DEFAULT_VALUES)
 
 class PageGroup:
     def __init__(self, name):
@@ -35,6 +52,96 @@ class PageGroup:
         self._postprocessors_after_page_exportation_stage = []
         self._preprocessors_before_page_build_finalization_stage = []
         self._postprocessors_after_page_build_finalization_stage = []
+
+    @property
+    def preprocessors_before_page_build_preparation_stage(self):
+        return self._preprocessors_before_page_build_preparation_stage
+
+    @property
+    def postprocessors_after_page_build_preparation_stage(self):
+        return self._postprocessors_after_page_build_preparation_stage
+
+    @property
+    def preprocessors_before_page_build_stage(self):
+        return self._preprocessors_before_page_build_stage
+
+    @property
+    def postprocessors_after_page_build_stage(self):
+        return self._postprocessors_after_page_build_stage
+
+    @property
+    def preprocessors_before_page_expansion_preparation_stage(self):
+        return self._preprocessors_before_page_expansion_preparation_stage
+
+    @property
+    def postprocessors_after_page_expansion_preparation_stage(self):
+        return self._postprocessors_after_page_expansion_preparation_stage
+
+    @property
+    def preprocessors_before_page_expansion_stage(self):
+        return self._preprocessors_before_page_expansion_stage
+
+    @property
+    def postprocessors_after_page_expansion_stage(self):
+        return self._postprocessors_after_page_expansion_stage
+
+    @property
+    def preprocessors_before_page_rendering_stage(self):
+        return self._preprocessors_before_page_rendering_stage
+
+    @property
+    def postprocessors_after_page_rendering_stage(self):
+        return self._postprocessors_after_page_rendering_stage
+
+    @property
+    def preprocessors_before_page_exportation_stage(self):
+        return self._preprocessors_before_page_exportation_stage
+
+    @property
+    def postprocessors_after_page_exportation_stage(self):
+        return self._postprocessors_after_page_exportation_stage
+
+    @property
+    def preprocessors_before_page_build_finalization_stage(self):
+        return self._preprocessors_before_page_build_finalization_stage
+
+    @property
+    def postprocessors_after_page_build_finalization_stage(self):
+        return self._postprocessors_after_page_build_finalization_stage
+
+    def get_config_value(self, key: str):
+        if not isinstance(key, str):
+            raise TypeError(
+                "key must be a str, not {}".format(key.__class__.__name__)
+            )
+        if key not in PAGE_GROUP_CONFIG_KEYS:
+            raise ValueError("unknown config key: {}".format(key))
+        if key in self._config:
+            return self._config[key]
+        return PAGE_GROUP_CONFIG_DEFAULT_VALUES[key]
+
+    def set_config_value(self, key: str, value: Any):
+        if not isinstance(key, str):
+            raise TypeError(
+                "key must be a str, not {}".format(key.__class__.__name__)
+            )
+        if key not in PAGE_GROUP_CONFIG_KEYS:
+            raise ValueError("unknown config key: {}".format(key))
+        self._config[key] = value
+
+    def update_config(
+        self,
+        config_values: Mapping,
+        ignore_invalid_keys: bool = False
+    ):
+        if not isinstance(config_values, Mapping):
+            raise TypeError("config_values must be a mapping")
+        for k, v in config_values.items():
+            if k not in PAGE_GROUP_CONFIG_KEYS:
+                if ignore_invalid_keys:
+                    continue
+                raise ValueError("unknown config key: {}".format(k))
+            self._config[k] = v
 
     def add_page(self, page_definition):
         path = page_definition.path

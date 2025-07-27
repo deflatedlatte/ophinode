@@ -1,6 +1,7 @@
 import os
 import sys
-from typing import Union
+import copy
+from typing import Any, Union
 if sys.version_info.major == 3 and sys.version_info.minor < 9:
     from typing import Iterable, Tuple, Callable, Mapping, Sequence
 else:
@@ -10,15 +11,11 @@ else:
 from ophinode.nodes.base import Page, Layout
 from .page_group import PageGroup
 from .page_definition import PageDefinition
-from .build_contexts import RootBuildContext, BuildContext, BuildPhase
-from .builders import (
-    prepare_site_build,
-    build_and_render_page_groups,
-    finalize_site_build,
-    run_preprocessors_for_prepare_site_build,
-    run_postprocessors_for_prepare_site_build,
-    run_preprocessors_for_finalize_site_build,
-    run_postprocessors_for_finalize_site_build,
+from .build_contexts import (
+    RootBuildContext,
+    BuildContext,
+    BuildPhase,
+    ROOT_BUILD_CONTEXT_CONFIG_KEYS,
 )
 
 SITE_CONFIG_DEFAULT_VALUES = {
@@ -26,9 +23,10 @@ SITE_CONFIG_DEFAULT_VALUES = {
     "default_layout"                         : None,
     "build_strategy"                         : "sync",
     "parallel_build_workers"                 : os.cpu_count(),
-    "parallel_build_chunksize"               : os.cpu_count() * 4,
-    "page_output_default_filename"           : "index.html",
-    "page_output_file_extension"             : "html",
+    "parallel_build_chunksize"               : 1,
+    "copy_page_groups_to_root_build_context" : False,
+    "page_default_file_name"                 : "index.html",
+    "page_default_file_name_suffix"          : ".html",
     "auto_write_exported_page_build_files"   : False,
     "auto_write_exported_site_build_files"   : True,
     "return_site_data_after_page_build"      : False,
@@ -174,32 +172,25 @@ class Site:
                     )
                 self.add_processor(stage, processor, page_group)
 
-    @property
-    def preprocessors_before_site_build_preparation_stage(self):
-        return self._preprocessors_before_site_build_preparation_stage
-
-    @property
-    def postprocessors_after_site_build_preparation_stage(self):
-        return self._postprocessors_after_site_build_preparation_stage
-
-    @property
-    def preprocessors_before_site_build_finalization_stage(self):
-        return self._preprocessors_before_site_build_finalization_stage
-
-    @property
-    def postprocessors_after_site_build_finalization_stage(self):
-        return self._postprocessors_after_site_build_finalization_stage
-
     def get_config_value(self, key: str):
         if not isinstance(key, str):
             raise TypeError(
                 "key must be a str, not {}".format(key.__class__.__name__)
             )
         if key not in SITE_CONFIG_KEYS:
-            raise ValueError("unknown config key: {}".format(k))
+            raise ValueError("unknown config key: {}".format(key))
         if key in self._config:
             return self._config[key]
         return SITE_CONFIG_DEFAULT_VALUES[key]
+
+    def set_config_value(self, key: str, value: Any):
+        if not isinstance(key, str):
+            raise TypeError(
+                "key must be a str, not {}".format(key.__class__.__name__)
+            )
+        if key not in SITE_CONFIG_KEYS:
+            raise ValueError("unknown config key: {}".format(key))
+        self._config[key] = value
 
     def update_config(
         self,
@@ -305,6 +296,16 @@ class Site:
                     "preprocessors and postprocessors for site build can "
                     "only have 'page_group' set to None"
                 )
+            if stage == "pre_prepare_site_build":
+                self._preprocessors_before_site_build_preparation_stage.append(processor)
+            elif stage == "post_prepare_site_build":
+                self._postprocessors_after_site_build_preparation_stage.append(processor)
+            elif stage == "pre_finalize_site_build":
+                self._preprocessors_before_site_build_finalization_stage.append(processor)
+            elif stage == "post_finalize_site_build":
+                self._postprocessors_after_site_build_finalization_stage.append(processor)
+            else:
+                raise ValueError("invalid processor stage: '{}'".format(stage))
         elif stage in (
             "pre_prepare_page_build",
             "post_prepare_page_build",
@@ -330,7 +331,14 @@ class Site:
             raise ValueError("invalid processor stage: '{}'".format(stage))
 
     def create_root_build_context(self) -> RootBuildContext:
-        return RootBuildContext(self, self._config)
+        if self.get_config_value("copy_page_groups_to_root_build_context"):
+            page_groups = copy.deepcopy(self._page_groups)
+        else:
+            page_groups = self._page_groups
+        build_config = {}
+        for k in ROOT_BUILD_CONTEXT_CONFIG_KEYS:
+            build_config[k] = self.get_config_value(k)
+        return RootBuildContext(self, page_groups, build_config)
 
     def build_site(self, context: Union[RootBuildContext, None] = None):
         if context is None:
@@ -343,20 +351,10 @@ class Site:
             )
         elif context.get_site() != self:
             raise ValueError(
-                "given root build context is not generated by this site"
+                "given root build context is not bound to this site"
             )
 
-        run_preprocessors_for_prepare_site_build(context)
-        prepare_site_build(context)
-        run_postprocessors_for_prepare_site_build(context)
-
-        build_and_render_page_groups(context)
-
-        run_preprocessors_for_finalize_site_build(context)
-        finalize_site_build(context)
-        run_postprocessors_for_finalize_site_build(context)
-
-        return context
+        return context.build_site()
 
 def render_page(page: Page, default_layout: Union[Layout, None] = None):
     config = {
