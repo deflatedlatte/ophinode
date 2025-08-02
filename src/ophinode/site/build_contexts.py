@@ -315,43 +315,24 @@ class BuildContext:
 
     def _finalize_page_build(self) -> "BuildContext":
         self._set_build_phase(BuildPhase.FINALIZE_PAGE_BUILD)
-        # Check if export_root_path has been set
-        if not self.get_config_value("export_root_path"):
+        if self.get_config_value("auto_write_exported_page_build_files"):
+            self._write_exported_files()
+
+    def _write_exported_files(self):
+        export_root_path_value = self.get_config_value("export_root_path")
+        if not export_root_path_value:
             raise RootPathUndefinedError(
-                "failed to export files because export_root_path is empty"
+                "failed to write exported files because export_root_path is "
+                "empty"
             )
 
-        # Ensure export_root_path is a directory,
-        # or if it does not exist, create one
-        export_root_path = pathlib.Path(self.get_config_value("export_root_path"))
-        if not export_root_path.exists():
-            if export_root_path.is_symlink():
-                raise RootPathIsNotADirectoryError(
-                    "failed to export files because export_root_path is a "
-                    "broken symlink"
-                )
-            try:
-                export_root_path.mkdir(parents=True)
-            except NotADirectoryError as exc:
-                raise RootPathIsNotADirectoryError(
-                    "failed to export files because the parent of "
-                    "export_root_path is not a directory, and thus "
-                    "export_root_path cannot be a directory"
-                ) from exc
-        elif not export_root_path.is_dir():
-            raise RootPathIsNotADirectoryError(
-                "failed to export files because export_root_path is not a "
-                "directory"
-            )
+        export_root_path = pathlib.Path(export_root_path_value)
+        export_root_path.mkdir(parents=True, exist_ok=True)
 
-        # Export files
-        for path, file_content in self.get_exported_files().items():
-            target_path = (
-                pathlib.Path(self.get_config_value("export_root_path")) / path.lstrip('/')
-            )
+        for path, file_content in self._exported_files.items():
+            target_path = export_root_path / path.lstrip('/')
             target_directory = target_path.parent
-            if not target_directory.exists():
-                target_directory.mkdir(parents=True)
+            target_directory.mkdir(parents=True, exist_ok=True)
             if isinstance(file_content, (bytes, bytearray)):
                 with target_path.open(mode="wb") as f:
                     f.write(file_content)
@@ -360,7 +341,7 @@ class BuildContext:
                     f.write(file_content)
             else:
                 with target_path.open(mode="w", encoding="utf-8") as f:
-                    json.dump(file_content, f, indent=2)
+                    json.dump(file_content, f)
 
     def _run_postprocessors_for_finalize_page_build(self) -> "BuildContext":
         self._set_build_phase(BuildPhase.POST_FINALIZE_PAGE_BUILD)
@@ -380,6 +361,10 @@ class BuildContext:
     def _unset_current_page(self):
         self._current_page_path = None
         self._current_page = None
+
+    @property
+    def name(self):
+        return self._page_group.name
 
     @property
     def site_data(self):
@@ -437,7 +422,7 @@ class BuildContext:
         self._finalize_page_build()
         self._run_postprocessors_for_finalize_page_build()
 
-        result = {}
+        result = {"name": self.name}
         if self.get_config_value("return_site_data_after_page_build"):
             result["site_data"] = self._site_data
         if self.get_config_value("return_page_data_after_page_build"):
@@ -630,6 +615,7 @@ class RootBuildContext:
 
         self._page_groups = page_groups
         self._subcontexts = []
+        self._page_build_results = {}
         self._site_data = {}
         self._page_data = {}
 
@@ -668,6 +654,33 @@ class RootBuildContext:
 
     def _finalize_site_build(self):
         self._set_build_phase(BuildPhase.FINALIZE_SITE_BUILD)
+        if self.get_config_value("auto_write_exported_site_build_files"):
+            self._write_exported_files()
+
+    def _write_exported_files(self):
+        export_root_path_value = self.get_config_value("export_root_path")
+        if not export_root_path_value:
+            raise RootPathUndefinedError(
+                "failed to write exported files because export_root_path is "
+                "empty"
+            )
+
+        export_root_path = pathlib.Path(export_root_path_value)
+        export_root_path.mkdir(parents=True, exist_ok=True)
+
+        for path, file_content in self._exported_files.items():
+            target_path = export_root_path / path.lstrip('/')
+            target_directory = target_path.parent
+            target_directory.mkdir(parents=True, exist_ok=True)
+            if isinstance(file_content, (bytes, bytearray)):
+                with target_path.open(mode="wb") as f:
+                    f.write(file_content)
+            elif isinstance(file_content, str):
+                with target_path.open(mode="w", encoding="utf-8") as f:
+                    f.write(file_content)
+            else:
+                with target_path.open(mode="w", encoding="utf-8") as f:
+                    json.dump(file_content, f)
 
     def _run_postprocessors_for_finalize_site_build(self) -> "RootBuildContext":
         self._set_build_phase(BuildPhase.POST_FINALIZE_SITE_BUILD)
@@ -684,6 +697,7 @@ class RootBuildContext:
         if build_strategy == "sync":
             for subcontext in self._subcontexts:
                 result = build_page_group(subcontext)
+                self._page_build_results[result["name"]] = result
         elif build_strategy == "parallel":
             pool = multiprocessing.Pool(
                 processes=self.get_config_value("parallel_build_workers")
@@ -693,7 +707,7 @@ class RootBuildContext:
                 self._subcontexts,
                 self.get_config_value("parallel_build_chunksize")
             ):
-                pass
+                self._page_build_results[result["name"]] = result
             pool.close()
             pool.join()
         else:
@@ -836,6 +850,9 @@ class RootBuildContext:
 
     def is_exported_file_path(self, export_path: str):
         return export_path in self._exported_files
+
+    def get_page_build_result(self, page_group_name: str):
+        return self._page_build_results[page_group_name]
 
     def get_page_url(
         self,

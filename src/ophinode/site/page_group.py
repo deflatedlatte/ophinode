@@ -54,6 +54,10 @@ class PageGroup:
         self._postprocessors_after_page_build_finalization_stage = []
 
     @property
+    def name(self):
+        return self._name
+
+    @property
     def preprocessors_before_page_build_preparation_stage(self):
         return self._preprocessors_before_page_build_preparation_stage
 

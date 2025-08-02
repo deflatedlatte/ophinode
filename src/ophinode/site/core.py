@@ -362,9 +362,11 @@ def render_page(page: Page, default_layout: Union[Layout, None] = None):
         "build_strategy": "sync",
         "auto_write_exported_page_build_files": False,
         "auto_write_exported_site_build_files": False,
+        "return_rendered_pages_after_page_build" : True,
     }
     if default_layout is not None:
         config["default_layout"] = default_layout
     site = Site(config, [("/", page)])
     context = site.build_site()
-    return context.get_rendered_page("/")
+    result = context.get_page_build_result("default")
+    return result["rendered_pages"]["/"]
