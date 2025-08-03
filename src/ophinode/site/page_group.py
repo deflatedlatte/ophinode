@@ -19,7 +19,7 @@ PAGE_GROUP_CONFIG_DEFAULT_VALUES = {
     "return_built_pages_after_page_build"    : False,
     "return_expanded_pages_after_page_build" : False,
     "return_rendered_pages_after_page_build" : False,
-    "return_exported_files_after_page_build" : False,
+    "return_exported_files_after_page_build" : True,
 }
 PAGE_GROUP_CONFIG_KEYS = set(PAGE_GROUP_CONFIG_DEFAULT_VALUES)
 
