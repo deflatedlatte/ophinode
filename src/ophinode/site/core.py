@@ -19,12 +19,12 @@ from .build_contexts import (
 )
 
 SITE_CONFIG_DEFAULT_VALUES = {
-    "export_root_path"                       : "",
+    "export_root_path"                       : "./ophinode_exported_files",
     "default_layout"                         : None,
     "build_strategy"                         : "sync",
     "parallel_build_workers"                 : os.cpu_count(),
     "parallel_build_chunksize"               : 1,
-    "copy_page_groups_to_root_build_context" : False,
+    "preserve_site_definition_across_builds" : False,
     "page_default_file_name"                 : "index.html",
     "page_default_file_name_suffix"          : ".html",
     "auto_write_exported_page_build_files"   : False,
@@ -36,6 +36,7 @@ SITE_CONFIG_DEFAULT_VALUES = {
     "return_expanded_pages_after_page_build" : False,
     "return_rendered_pages_after_page_build" : False,
     "return_exported_files_after_page_build" : False,
+    "gather_and_merge_page_build_results"    : False,
 }
 SITE_CONFIG_KEYS = set(SITE_CONFIG_DEFAULT_VALUES)
 
@@ -331,29 +332,53 @@ class Site:
             raise ValueError("invalid processor stage: '{}'".format(stage))
 
     def create_root_build_context(self) -> RootBuildContext:
-        if self.get_config_value("copy_page_groups_to_root_build_context"):
+        if self.get_config_value("preserve_site_definition_across_builds"):
             page_groups = copy.deepcopy(self._page_groups)
+            pre_preparation = copy.deepcopy(
+                self._preprocessors_before_site_build_preparation_stage
+            )
+            post_preparation = copy.deepcopy(
+                self._postprocessors_after_site_build_preparation_stage
+            )
+            pre_finalization = copy.deepcopy(
+                self._preprocessors_before_site_build_finalization_stage
+            )
+            post_finalization = copy.deepcopy(
+                self._postprocessors_after_site_build_finalization_stage
+            )
         else:
-            page_groups = self._page_groups
+            page_groups = self._page_groups.copy()
+            pre_preparation = (
+                self._preprocessors_before_site_build_preparation_stage
+            ).copy()
+            post_preparation = (
+                self._postprocessors_after_site_build_preparation_stage
+            ).copy()
+            pre_finalization = (
+                self._preprocessors_before_site_build_finalization_stage
+            ).copy()
+            post_finalization = (
+                self._postprocessors_after_site_build_finalization_stage
+            ).copy()
+
         build_config = {}
         for k in ROOT_BUILD_CONTEXT_CONFIG_KEYS:
-            build_config[k] = self.get_config_value(k)
-        return RootBuildContext(self, page_groups, build_config)
+            if k in self._config:
+                build_config[k] = self._config[k]
 
-    def build_site(self, context: Union[RootBuildContext, None] = None):
-        if context is None:
-            context = self.create_root_build_context()
-        elif not isinstance(context, RootBuildContext):
-            raise TypeError(
-                "context must be a RootBuildContext or None, not {}".format(
-                    context.__class__.__name__
-                )
-            )
-        elif context.get_site() != self:
-            raise ValueError(
-                "given root build context is not bound to this site"
-            )
+        return RootBuildContext(
+            page_groups,
+            build_config,
+            {
+                "pre_prepare_site_build": pre_preparation,
+                "post_prepare_site_build": post_preparation,
+                "pre_finalize_site_build": pre_finalization,
+                "post_finalize_site_build": post_finalization,
+            },
+        )
 
+    def build_site(self):
+        context = self.create_root_build_context()
         return context.build_site()
 
 def render_page(page: Page, default_layout: Union[Layout, None] = None):

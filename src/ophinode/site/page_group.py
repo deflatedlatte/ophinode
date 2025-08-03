@@ -5,8 +5,10 @@ if sys.version_info.major == 3 and sys.version_info.minor < 9:
 else:
     from collections.abc import Callable, Mapping, Iterable
 
+from .build_contexts import BuildContext, BUILD_CONTEXT_CONFIG_KEYS
+
 PAGE_GROUP_CONFIG_DEFAULT_VALUES = {
-    "export_root_path"                       : "",
+    "export_root_path"                       : "./ophinode_exported_files",
     "default_layout"                         : None,
     "page_default_file_name"                 : "index.html",
     "page_default_file_name_suffix"          : ".html",
@@ -57,61 +59,91 @@ class PageGroup:
     def name(self):
         return self._name
 
-    @property
-    def preprocessors_before_page_build_preparation_stage(self):
-        return self._preprocessors_before_page_build_preparation_stage
+    def create_build_context(
+        self,
+        build_config,
+        site_data,
+        page_data,
+    ):
+        pages = self._pages.copy()
+        dependencies = self._dependencies.copy()
 
-    @property
-    def postprocessors_after_page_build_preparation_stage(self):
-        return self._postprocessors_after_page_build_preparation_stage
+        pre_page_build_preps = (
+            self._preprocessors_before_page_build_preparation_stage
+        ).copy()
+        post_page_build_preps = (
+            self._postprocessors_after_page_build_preparation_stage
+        ).copy()
+        pre_page_builds = (
+            self._preprocessors_before_page_build_stage
+        ).copy()
+        post_page_builds = (
+            self._postprocessors_after_page_build_stage
+        ).copy()
+        pre_page_expand_preps = (
+            self._preprocessors_before_page_expansion_preparation_stage
+        ).copy()
+        post_page_expand_preps = (
+            self._postprocessors_after_page_expansion_preparation_stage
+        ).copy()
+        pre_page_expands = (
+            self._preprocessors_before_page_expansion_stage
+        ).copy()
+        post_page_expands = (
+            self._postprocessors_after_page_expansion_stage
+        ).copy()
+        pre_page_renders = (
+            self._preprocessors_before_page_rendering_stage
+        ).copy()
+        post_page_renders = (
+            self._postprocessors_after_page_rendering_stage
+        ).copy()
+        pre_page_exports = (
+            self._preprocessors_before_page_exportation_stage
+        ).copy()
+        post_page_exports = (
+            self._postprocessors_after_page_exportation_stage
+        ).copy()
+        pre_page_build_finalizations = (
+            self._preprocessors_before_page_build_finalization_stage
+        ).copy()
+        post_page_build_finalizations = (
+            self._postprocessors_after_page_build_finalization_stage
+        ).copy()
 
-    @property
-    def preprocessors_before_page_build_stage(self):
-        return self._preprocessors_before_page_build_stage
+        cfg = {}
+        for k in BUILD_CONTEXT_CONFIG_KEYS:
+            if k in self._config:
+                cfg[k] = self._config[k]
+            elif k in build_config:
+                cfg[k] = build_config[k]
+            else:
+                cfg[k] = self.get_config_value(k)
 
-    @property
-    def postprocessors_after_page_build_stage(self):
-        return self._postprocessors_after_page_build_stage
-
-    @property
-    def preprocessors_before_page_expansion_preparation_stage(self):
-        return self._preprocessors_before_page_expansion_preparation_stage
-
-    @property
-    def postprocessors_after_page_expansion_preparation_stage(self):
-        return self._postprocessors_after_page_expansion_preparation_stage
-
-    @property
-    def preprocessors_before_page_expansion_stage(self):
-        return self._preprocessors_before_page_expansion_stage
-
-    @property
-    def postprocessors_after_page_expansion_stage(self):
-        return self._postprocessors_after_page_expansion_stage
-
-    @property
-    def preprocessors_before_page_rendering_stage(self):
-        return self._preprocessors_before_page_rendering_stage
-
-    @property
-    def postprocessors_after_page_rendering_stage(self):
-        return self._postprocessors_after_page_rendering_stage
-
-    @property
-    def preprocessors_before_page_exportation_stage(self):
-        return self._preprocessors_before_page_exportation_stage
-
-    @property
-    def postprocessors_after_page_exportation_stage(self):
-        return self._postprocessors_after_page_exportation_stage
-
-    @property
-    def preprocessors_before_page_build_finalization_stage(self):
-        return self._preprocessors_before_page_build_finalization_stage
-
-    @property
-    def postprocessors_after_page_build_finalization_stage(self):
-        return self._postprocessors_after_page_build_finalization_stage
+        return BuildContext(
+            self._name,
+            pages,
+            dependencies,
+            site_data,
+            page_data,
+            cfg,
+            {
+                "pre_prepare_page_build": pre_page_build_preps,
+                "post_prepare_page_build": post_page_build_preps,
+                "pre_build_pages": pre_page_builds,
+                "post_build_pages": post_page_builds,
+                "pre_prepare_page_expansion": pre_page_expand_preps,
+                "post_prepare_page_expansion": post_page_expand_preps,
+                "pre_expand_pages": pre_page_expands,
+                "post_expand_pages": post_page_expands,
+                "pre_render_pages": pre_page_renders,
+                "post_render_pages": post_page_renders,
+                "pre_export_pages": pre_page_exports,
+                "post_export_pages": post_page_exports,
+                "pre_finalize_page_build": pre_page_build_finalizations,
+                "post_finalize_page_build": post_page_build_finalizations,
+            },
+        )
 
     def get_config_value(self, key: str):
         if not isinstance(key, str):

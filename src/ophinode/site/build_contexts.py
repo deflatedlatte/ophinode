@@ -19,7 +19,6 @@ from ophinode.exceptions.site import (
 from ophinode.nodes.base import Page, Layout, Preparable, Expandable
 from ophinode.nodes.html import TextNode, HTML5Layout
 from ophinode.rendering.render_node import RenderNode
-from .page_group import PageGroup
 
 class _StackDelimiter:
     pass
@@ -55,7 +54,7 @@ class BuildPhase(Enum):
     POST_FINALIZE_SITE_BUILD    = 27
 
 BUILD_CONTEXT_CONFIG_DEFAULT_VALUES = {
-    "export_root_path"                       : "",
+    "export_root_path"                       : "./ophinode_exported_files",
     "default_layout"                         : None,
     "page_default_file_name"                 : "index.html",
     "page_default_file_name_suffix"          : ".html",
@@ -73,10 +72,13 @@ BUILD_CONTEXT_CONFIG_KEYS = set(BUILD_CONTEXT_CONFIG_DEFAULT_VALUES)
 class BuildContext:
     def __init__(
         self,
-        page_group: PageGroup,
+        name: str,
+        pages: list,
+        dependencies: dict,
         site_data: dict,
         page_data: dict,
-        build_config: Union[dict, None] = None
+        build_config: dict,
+        processors: dict,
     ):
         self._build_phase = BuildPhase.INIT
 
@@ -86,7 +88,14 @@ class BuildContext:
 
         self._current_page_path = None
         self._current_page = None
-        self._page_group = page_group
+        self._name = name
+        self._pages_dict = {}
+        self._pages = pages
+        self._dependencies = dependencies
+
+        for page_def in self._pages:
+            self._pages_dict[page_def.path] = page_def
+
         self._site_data = site_data
         self._page_data = page_data
         self._misc_data = {}
@@ -110,6 +119,132 @@ class BuildContext:
         self._preprocessors_before_page_build_finalization_stage = []
         self._postprocessors_after_page_build_finalization_stage = []
 
+        if "pre_prepare_page_build" in processors:
+            l = self._preprocessors_before_page_build_preparation_stage
+            for proc in processors["pre_prepare_page_build"]:
+                if not callable(proc):
+                    raise ValueError(
+                        "pre- and post-processors must be callable"
+                    )
+                l.append(proc)
+
+        if "post_prepare_page_build" in processors:
+            l = self._postprocessors_after_page_build_preparation_stage
+            for proc in processors["post_prepare_page_build"]:
+                if not callable(proc):
+                    raise ValueError(
+                        "pre- and post-processors must be callable"
+                    )
+                l.append(proc)
+
+        if "pre_build_pages" in processors:
+            l = self._preprocessors_before_page_build_stage
+            for proc in processors["pre_build_pages"]:
+                if not callable(proc):
+                    raise ValueError(
+                        "pre- and post-processors must be callable"
+                    )
+                l.append(proc)
+
+        if "post_build_pages" in processors:
+            l = self._postprocessors_after_page_build_stage
+            for proc in processors["post_build_pages"]:
+                if not callable(proc):
+                    raise ValueError(
+                        "pre- and post-processors must be callable"
+                    )
+                l.append(proc)
+
+        if "pre_prepare_page_expansion" in processors:
+            l = self._preprocessors_before_page_expansion_preparation_stage
+            for proc in processors["pre_prepare_page_expansion"]:
+                if not callable(proc):
+                    raise ValueError(
+                        "pre- and post-processors must be callable"
+                    )
+                l.append(proc)
+
+        if "post_prepare_page_expansion" in processors:
+            l = self._postprocessors_after_page_expansion_preparation_stage
+            for proc in processors["post_prepare_page_expansion"]:
+                if not callable(proc):
+                    raise ValueError(
+                        "pre- and post-processors must be callable"
+                    )
+                l.append(proc)
+
+        if "pre_expand_pages" in processors:
+            l = self._preprocessors_before_page_expansion_stage
+            for proc in processors["pre_expand_pages"]:
+                if not callable(proc):
+                    raise ValueError(
+                        "pre- and post-processors must be callable"
+                    )
+                l.append(proc)
+
+        if "post_expand_pages" in processors:
+            l = self._postprocessors_after_page_expansion_stage
+            for proc in processors["post_expand_pages"]:
+                if not callable(proc):
+                    raise ValueError(
+                        "pre- and post-processors must be callable"
+                    )
+                l.append(proc)
+
+        if "pre_render_pages" in processors:
+            l = self._preprocessors_before_page_rendering_stage
+            for proc in processors["pre_render_pages"]:
+                if not callable(proc):
+                    raise ValueError(
+                        "pre- and post-processors must be callable"
+                    )
+                l.append(proc)
+
+        if "post_render_pages" in processors:
+            l = self._postprocessors_after_page_rendering_stage
+            for proc in processors["post_render_pages"]:
+                if not callable(proc):
+                    raise ValueError(
+                        "pre- and post-processors must be callable"
+                    )
+                l.append(proc)
+
+        if "pre_export_pages" in processors:
+            l = self._preprocessors_before_page_exportation_stage
+            for proc in processors["pre_export_pages"]:
+                if not callable(proc):
+                    raise ValueError(
+                        "pre- and post-processors must be callable"
+                    )
+                l.append(proc)
+
+        if "post_export_pages" in processors:
+            l = self._postprocessors_after_page_exportation_stage
+            for proc in processors["post_export_pages"]:
+                if not callable(proc):
+                    raise ValueError(
+                        "pre- and post-processors must be callable"
+                    )
+                l.append(proc)
+
+        if "pre_finalize_page_build" in processors:
+            l = self._preprocessors_before_page_build_finalization_stage
+            for proc in processors["pre_finalize_page_build"]:
+                if not callable(proc):
+                    raise ValueError(
+                        "pre- and post-processors must be callable"
+                    )
+                l.append(proc)
+
+        if "post_finalize_page_build" in processors:
+            l = self._postprocessors_after_page_build_finalization_stage
+            for proc in processors["post_finalize_page_build"]:
+                if not callable(proc):
+                    raise ValueError(
+                        "pre- and post-processors must be callable"
+                    )
+                l.append(proc)
+
     def _run_preprocessors_for_prepare_page_build(self) -> "BuildContext":
         self._set_build_phase(BuildPhase.PRE_PREPARE_PAGE_BUILD)
         for processor in self._preprocessors_before_page_build_preparation_stage:
@@ -118,7 +253,7 @@ class BuildContext:
 
     def _prepare_page_build(self) -> "BuildContext":
         self._set_build_phase(BuildPhase.PREPARE_PAGE_BUILD)
-        for page_def in self._page_group._pages:
+        for page_def in self._pages:
             path, page = page_def.path, page_def.page
             self._set_current_page(path, page)
             page.prepare_page(self)
@@ -139,7 +274,7 @@ class BuildContext:
 
     def _build_pages(self) -> "BuildContext":
         self._set_build_phase(BuildPhase.BUILD_PAGES)
-        for page_def in self._page_group._pages:
+        for page_def in self._pages:
             path, page = page_def.path, page_def.page
             layout = self._resolve_layout(path, page)
             self._set_current_page(path, page)
@@ -186,7 +321,7 @@ class BuildContext:
 
     def _prepare_page_expansion(self) -> "BuildContext":
         self._set_build_phase(BuildPhase.PREPARE_PAGE_EXPANSION)
-        for page_def in self._page_group._pages:
+        for page_def in self._pages:
             path, page = page_def.path, page_def.page
             node = self.get_built_page(path)
             if not isinstance(node, Preparable):
@@ -210,7 +345,7 @@ class BuildContext:
 
     def _expand_pages(self):
         self._set_build_phase(BuildPhase.EXPAND_PAGES)
-        for page_def in self._page_group._pages:
+        for page_def in self._pages:
             path, page = page_def.path, page_def.page
             self._set_current_page(path, page)
             self._expanded_pages[path] = self._expand_page(
@@ -269,7 +404,7 @@ class BuildContext:
 
     def _render_pages(self):
         self._set_build_phase(BuildPhase.RENDER_PAGES)
-        for page_def in self._page_group._pages:
+        for page_def in self._pages:
             path, page = page_def.path, page_def.page
             self._set_current_page(path, page)
             self._rendered_pages[path] = self._render_page(path, page)
@@ -294,7 +429,7 @@ class BuildContext:
 
     def _export_pages(self) -> "BuildContext":
         self._set_build_phase(BuildPhase.EXPORT_PAGES)
-        for page_def in self._page_group._pages:
+        for page_def in self._pages:
             path, page = page_def.path, page_def.page
             self._set_current_page(path, page)
             page.export_page(self)
@@ -364,7 +499,7 @@ class BuildContext:
 
     @property
     def name(self):
-        return self._page_group.name
+        return self._name
 
     @property
     def site_data(self):
@@ -479,16 +614,16 @@ class BuildContext:
                     "no page is currently being built in this context"
                 )
             return self._current_page
-        return self._page_group.get_page(page_path)
+        return self._pages_dict[page_path]
 
     def get_pages(self):
-        return self._page_group.get_pages()
+        return self._pages.copy()
 
     def get_page_paths(self):
-        return self._page_group.get_page_paths()
+        return [x.path for x in self._pages]
 
     def has_page(self, page_path: str):
-        return self._page_group.has_page(page_path)
+        return page_path in self._pages_dict
 
     def get_built_page(self, page_path: str):
         return self._built_pages[page_path]
@@ -571,7 +706,7 @@ class BuildContext:
         pass
 
 ROOT_BUILD_CONTEXT_CONFIG_DEFAULT_VALUES = {
-    "export_root_path"                       : "",
+    "export_root_path"                       : "./ophinode_exported_files",
     "default_layout"                         : None,
     "build_strategy"                         : "sync",
     "parallel_build_workers"                 : os.cpu_count(),
@@ -587,6 +722,7 @@ ROOT_BUILD_CONTEXT_CONFIG_DEFAULT_VALUES = {
     "return_expanded_pages_after_page_build" : False,
     "return_rendered_pages_after_page_build" : False,
     "return_exported_files_after_page_build" : False,
+    "gather_and_merge_page_build_results"    : False,
 }
 ROOT_BUILD_CONTEXT_CONFIG_KEYS = set(ROOT_BUILD_CONTEXT_CONFIG_DEFAULT_VALUES)
 
@@ -598,16 +734,11 @@ def build_page_group(subcontext: BuildContext):
 class RootBuildContext:
     def __init__(
         self,
-        site: "ophinode.site.Site",
         page_groups: dict,
-        build_config: Union[dict, None] = None
+        build_config: dict,
+        processors: dict,
     ):
         self._build_phase = BuildPhase.INIT
-
-        from ophinode.site import Site
-        if not isinstance(site, Site):
-            raise TypeError("site must be a Site, not {}".format(site.__class__.__name__))
-        self._site = site
 
         self._config = {}
         if build_config is not None:
@@ -618,11 +749,52 @@ class RootBuildContext:
         self._page_build_results = {}
         self._site_data = {}
         self._page_data = {}
+        self._misc_data = {}
+        self._built_pages = {}
+        self._expanded_pages = {}
+        self._rendered_pages = {}
+        self._exported_files = {}
 
         self._preprocessors_before_site_build_preparation_stage = []
         self._postprocessors_after_site_build_preparation_stage = []
         self._preprocessors_before_site_build_finalization_stage = []
         self._postprocessors_after_site_build_finalization_stage = []
+
+        if "pre_prepare_site_build" in processors:
+            l = self._preprocessors_before_site_build_preparation_stage
+            for proc in processors["pre_prepare_site_build"]:
+                if not callable(proc):
+                    raise ValueError(
+                        "pre- and post-processors must be callable"
+                    )
+                l.append(proc)
+
+        if "post_prepare_site_build" in processors:
+            l = self._postprocessors_after_site_build_preparation_stage
+            for proc in processors["post_prepare_site_build"]:
+                if not callable(proc):
+                    raise ValueError(
+                        "pre- and post-processors must be callable"
+                    )
+                l.append(proc)
+
+        if "pre_finalize_site_build" in processors:
+            l = self._preprocessors_before_site_build_finalization_stage
+            for proc in processors["pre_finalize_site_build"]:
+                if not callable(proc):
+                    raise ValueError(
+                        "pre- and post-processors must be callable"
+                    )
+                l.append(proc)
+
+        if "post_finalize_site_build" in processors:
+            l = self._postprocessors_after_site_build_finalization_stage
+            for proc in processors["post_finalize_site_build"]:
+                if not callable(proc):
+                    raise ValueError(
+                        "pre- and post-processors must be callable"
+                    )
+                l.append(proc)
 
     def _run_preprocessors_for_prepare_site_build(self) -> "RootBuildContext":
         self._set_build_phase(BuildPhase.PRE_PREPARE_SITE_BUILD)
@@ -633,11 +805,7 @@ class RootBuildContext:
     def _prepare_site_build(self) -> "RootBuildContext":
         self._set_build_phase(BuildPhase.PREPARE_SITE_BUILD)
         for page_group in self._page_groups.values():
-            config = {}
-            # TODO: respect configs of individual page groups
-            for k in BUILD_CONTEXT_CONFIG_KEYS:
-                config[k] = self.get_config_value(k)
-            self.create_subcontext(page_group, config)
+            self.create_subcontext(page_group)
         return self
 
     def _run_postprocessors_for_prepare_site_build(self) -> "RootBuildContext":
@@ -688,6 +856,22 @@ class RootBuildContext:
             processor(self)
         return self
 
+    def _merge_data_from_build_results(self, build_result: dict):
+        if "site_data" in build_result:
+            self._site_data.update(build_result["site_data"])
+        if "page_data" in build_result:
+            self._page_data.update(build_result["page_data"])
+        if "misc_data" in build_result:
+            self._misc_data.update(build_result["misc_data"])
+        if "built_pages" in build_result:
+            self._built_pages.update(build_result["built_pages"])
+        if "expanded_pages" in build_result:
+            self._expanded_pages.update(build_result["expanded_pages"])
+        if "rendered_pages" in build_result:
+            self._rendered_pages.update(build_result["rendered_pages"])
+        if "exported_files" in build_result:
+            self._exported_files.update(build_result["exported_files"])
+
     def build_site(self) -> "RootBuildContext":
         self._run_preprocessors_for_prepare_site_build()
         self._prepare_site_build()
@@ -698,6 +882,10 @@ class RootBuildContext:
             for subcontext in self._subcontexts:
                 result = build_page_group(subcontext)
                 self._page_build_results[result["name"]] = result
+                if self.get_config_value(
+                    "gather_and_merge_page_build_results"
+                ):
+                    self._merge_data_from_build_results(result)
         elif build_strategy == "parallel":
             pool = multiprocessing.Pool(
                 processes=self.get_config_value("parallel_build_workers")
@@ -708,6 +896,10 @@ class RootBuildContext:
                 self.get_config_value("parallel_build_chunksize")
             ):
                 self._page_build_results[result["name"]] = result
+                if self.get_config_value(
+                    "gather_and_merge_page_build_results"
+                ):
+                    self._merge_data_from_build_results(result)
             pool.close()
             pool.join()
         else:
@@ -719,12 +911,16 @@ class RootBuildContext:
 
         return self
 
-    def create_subcontext(self, page_group: PageGroup, build_config: dict):
-        subcontext = BuildContext(
-            page_group,
+    def create_subcontext(self, page_group: "PageGroup"):
+        build_config = {}
+        for k in BUILD_CONTEXT_CONFIG_KEYS:
+            if k in self._config:
+                build_config[k] = self._config[k]
+
+        subcontext = page_group.create_build_context(
+            build_config,
             self._site_data,
             self._page_data,
-            build_config,
         )
         self._subcontexts.append(subcontext)
 
