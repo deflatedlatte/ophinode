@@ -270,8 +270,6 @@ __all__ = [
 from .core import (
     default_escape_ampersands,
     default_escape_tag_delimiters,
-    HTML5Page,
-    HTML5Layout,
     Node,
     TextNode,
     HTML5Doctype,
@@ -280,6 +278,11 @@ from .core import (
     Element,
     OpenElement,
     ClosedElement,
+)
+
+from .templates import (
+    HTML5Page,
+    HTML5Layout,
 )
 
 from .elements.fullname import (
