@@ -113,21 +113,23 @@ __all__ = [
     "CanvasElement",
 ]
 
-from ..core import OpenElement, ClosedElement
+from ..core import OpenElement, ClosedElement, TextNode
 
 # --- The document element ---
 
 class HtmlElement(OpenElement):
     tag = "html"
+    render_mode = "hierarchy"
 
 # --- Document metadata ---
 
 class HeadElement(OpenElement):
     tag = "head"
+    render_mode = "hierarchy"
 
 class TitleElement(OpenElement):
     tag = "title"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class BaseElement(ClosedElement):
     tag = "base"
@@ -140,6 +142,7 @@ class MetaElement(ClosedElement):
 
 class StyleElement(OpenElement):
     tag = "style"
+    render_mode = "hierarchy"
 
     def __init__(self, *args, escape_tag_delimiters = None, **kwargs):
         if escape_tag_delimiters is None:
@@ -172,54 +175,63 @@ class StyleElement(OpenElement):
 
 class BodyElement(OpenElement):
     tag = "body"
+    render_mode = "hierarchy"
 
 class ArticleElement(OpenElement):
     tag = "article"
+    render_mode = "hierarchy"
 
 class SectionElement(OpenElement):
     tag = "section"
+    render_mode = "hierarchy"
 
 class NavigationElement(OpenElement):
     tag = "nav"
+    render_mode = "hierarchy"
 
 class AsideElement(OpenElement):
     tag = "aside"
+    render_mode = "hierarchy"
 
 class HeadingLevel1Element(OpenElement):
     tag = "h1"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class HeadingLevel2Element(OpenElement):
     tag = "h2"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class HeadingLevel3Element(OpenElement):
     tag = "h3"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class HeadingLevel4Element(OpenElement):
     tag = "h4"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class HeadingLevel5Element(OpenElement):
     tag = "h5"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class HeadingLevel6Element(OpenElement):
     tag = "h6"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class HeadingGroupElement(OpenElement):
     tag = "hgroup"
+    render_mode = "hierarchy"
 
 class HeaderElement(OpenElement):
     tag = "header"
+    render_mode = "hierarchy"
 
 class FooterElement(OpenElement):
     tag = "footer"
+    render_mode = "hierarchy"
 
 class AddressElement(OpenElement):
     tag = "address"
+    render_mode = "phrase"
 
 # --- Grouping content ---
 
@@ -236,153 +248,165 @@ class PreformattedTextElement(OpenElement):
 
 class BlockQuotationElement(OpenElement):
     tag = "blockquote"
+    render_mode = "hierarchy"
 
 class OrderedListElement(OpenElement):
     tag = "ol"
+    render_mode = "hierarchy"
 
 class UnorderedListElement(OpenElement):
     tag = "ul"
+    render_mode = "hierarchy"
 
 class MenuElement(OpenElement):
     tag = "menu"
+    render_mode = "hierarchy"
 
 class ListItemElement(OpenElement):
     tag = "li"
+    render_mode = "phrase"
 
 class DescriptionListElement(OpenElement):
     tag = "dl"
+    render_mode = "hierarchy"
 
 class DescriptionTermElement(OpenElement):
     tag = "dt"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class DescriptionDetailsElement(OpenElement):
     tag = "dd"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class FigureElement(OpenElement):
     tag = "figure"
+    render_mode = "hierarchy"
 
 class FigureCaptionElement(OpenElement):
     tag = "figcaption"
+    render_mode = "phrase"
 
 class MainElement(OpenElement):
     tag = "main"
+    render_mode = "hierarchy"
 
 class SearchElement(OpenElement):
     tag = "search"
+    render_mode = "hierarchy"
 
 class DivisionElement(OpenElement):
     tag = "div"
+    render_mode = "hierarchy"
 
 # --- Text-level semantics ---
 
 class AnchorElement(OpenElement):
     tag = "a"
+    render_mode = "phrase"
 
 class EmphasisElement(OpenElement):
     tag = "em"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class StrongImportanceElement(OpenElement):
     tag = "strong"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class SmallPrintElement(OpenElement):
     tag = "small"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class StrikethroughElement(OpenElement):
     tag = "s"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class CitationElement(OpenElement):
     tag = "cite"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class QuotationElement(OpenElement):
     tag = "q"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class DefinitionElement(OpenElement):
     tag = "dfn"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class AbbreviationElement(OpenElement):
     tag = "abbr"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class RubyAnnotationElement(OpenElement):
     tag = "ruby"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class RubyTextElement(OpenElement):
     tag = "rt"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class RubyParenthesesElement(OpenElement):
     tag = "rp"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class DataElement(OpenElement):
     tag = "data"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class TimeElement(OpenElement):
     tag = "time"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class CodeElement(OpenElement):
     tag = "code"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class VariableElement(OpenElement):
     tag = "var"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class SampleElement(OpenElement):
     tag = "samp"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class KeyboardInputElement(OpenElement):
     tag = "kbd"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class SubscriptElement(OpenElement):
     tag = "sub"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class SuperscriptElement(OpenElement):
     tag = "sup"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class ItalicTextElement(OpenElement):
     tag = "i"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class BoldTextElement(OpenElement):
     tag = "b"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class UnarticulatedAnnotationElement(OpenElement):
     tag = "u"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class MarkedTextElement(OpenElement):
     tag = "mark"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class BidirectionalIsolateElement(OpenElement):
     tag = "bdi"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class BidirectionalOverrideElement(OpenElement):
     tag = "bdo"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class SpanElement(OpenElement):
     tag = "span"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class LineBreakElement(ClosedElement):
     tag = "br"
@@ -394,15 +418,17 @@ class LineBreakOpportunityElement(ClosedElement):
 
 class InsertionElement(OpenElement):
     tag = "ins"
+    render_mode = "hierarchy"
 
 class DeletionElement(OpenElement):
     tag = "del"
-    render_mode = "inline"
+    render_mode = "hierarchy"
 
 # --- Embedded content ---
 
 class PictureElement(OpenElement):
     tag = "picture"
+    render_mode = "hierarchy"
 
 class SourceElement(ClosedElement):
     tag = "source"
@@ -412,24 +438,29 @@ class ImageElement(ClosedElement):
 
 class InlineFrameElement(OpenElement):
     tag = "iframe"
+    render_mode = "hierarchy"
 
 class EmbeddedContentElement(ClosedElement):
     tag = "embed"
 
 class ExternalObjectElement(OpenElement):
     tag = "object"
+    render_mode = "hierarchy"
 
 class VideoElement(OpenElement):
     tag = "video"
+    render_mode = "phrase"
 
 class AudioElement(OpenElement):
     tag = "audio"
+    render_mode = "phrase"
 
 class TextTrackElement(ClosedElement):
     tag = "track"
 
 class ImageMapElement(OpenElement):
     tag = "map"
+    render_mode = "hierarchy"
 
 class ImageMapAreaElement(ClosedElement):
     tag = "area"
@@ -438,59 +469,75 @@ class ImageMapAreaElement(ClosedElement):
 
 class TableElement(OpenElement):
     tag = "table"
+    render_mode = "hierarchy"
 
 class TableCaptionElement(OpenElement):
     tag = "caption"
+    render_mode = "phrase"
 
 class TableColumnGroupElement(OpenElement):
     tag = "colgroup"
+    render_mode = "hierarchy"
 
 class TableColumnElement(ClosedElement):
     tag = "col"
 
 class TableBodyElement(OpenElement):
     tag = "tbody"
+    render_mode = "hierarchy"
 
 class TableHeadElement(OpenElement):
     tag = "thead"
+    render_mode = "hierarchy"
 
 class TableFootElement(OpenElement):
     tag = "tfoot"
+    render_mode = "hierarchy"
 
 class TableRowElement(OpenElement):
     tag = "tr"
+    render_mode = "hierarchy"
 
 class TableDataCellElement(OpenElement):
     tag = "td"
+    render_mode = "phrase"
 
 class TableHeaderCellElement(OpenElement):
     tag = "th"
+    render_mode = "phrase"
 
 # --- Forms ---
 
 class FormElement(OpenElement):
     tag = "form"
+    render_mode = "hierarchy"
 
 class LabelElement(OpenElement):
     tag = "label"
+    render_mode = "phrase"
 
 class InputElement(ClosedElement):
     tag = "input"
 
 class ButtonElement(OpenElement):
     tag = "button"
+    render_mode = "phrase"
 
 class SelectElement(OpenElement):
     tag = "select"
+    render_mode = "hierarchy"
 
 class DataListElement(OpenElement):
     tag = "datalist"
+    render_mode = "hierarchy"
 
 class OptionGroupElement(OpenElement):
     tag = "optgroup"
+    render_mode = "hierarchy"
 
 class OptionElement(OpenElement):
     tag = "option"
+    render_mode = "phrase"
 
 class TextAreaElement(OpenElement):
     tag = "textarea"
@@ -498,38 +545,43 @@ class TextAreaElement(OpenElement):
 
 class OutputElement(OpenElement):
     tag = "output"
+    render_mode = "phrase"
 
 class ProgressElement(OpenElement):
     tag = "progress"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class MeterElement(OpenElement):
     tag = "meter"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class FieldSetElement(OpenElement):
     tag = "fieldset"
+    render_mode = "hierarchy"
 
 class FieldSetLegendElement(OpenElement):
     tag = "legend"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 # --- Interactive elements ---
 
 class DetailsElement(OpenElement):
     tag = "details"
+    render_mode = "hierarchy"
 
 class SummaryElement(OpenElement):
     tag = "summary"
-    render_mode = "inline"
+    render_mode = "phrase"
 
 class DialogElement(OpenElement):
     tag = "dialog"
+    render_mode = "hierarchy"
 
 # --- Scripting ---
 
 class ScriptElement(OpenElement):
     tag = "script"
+    render_mode = "hierarchy"
 
     def __init__(self, *args, escape_tag_delimiters = None, **kwargs):
         if escape_tag_delimiters is None:
@@ -582,13 +634,17 @@ class ScriptElement(OpenElement):
 
 class NoScriptElement(OpenElement):
     tag = "noscript"
+    render_mode = "hierarchy"
 
 class TemplateElement(OpenElement):
     tag = "template"
+    render_mode = "hierarchy"
 
 class SlotElement(OpenElement):
     tag = "slot"
+    render_mode = "phrase"
 
 class CanvasElement(OpenElement):
     tag = "canvas"
+    render_mode = "hierarchy"
 
