@@ -1,7 +1,7 @@
 import collections
 from typing import Union
 
-from .nodes.base import *
+from ophinode.nodes.base import *
 
 class RenderNode:
     def __init__(self, value: Union[OpenRenderable, ClosedRenderable, None]):
@@ -45,16 +45,13 @@ class RenderNode:
                         if (
                             text_content
                             and total_text_content_length
-                            and (
-                                no_auto_newline_count == 0
-                                or no_auto_indent_count == 0
-                            )
+                            and no_auto_newline_count == 0
                         ):
                             text_content = "\n" + text_content
-                        if no_auto_indent_count == 0 and text_content:
-                            text_content = ("\n"+"  "*depth).join(
-                                text_content.split("\n")
-                            )
+                    if no_auto_indent_count == 0 and text_content:
+                        text_content = ("\n"+"  "*depth).join(
+                            text_content.split("\n")
+                        )
                     result.append(text_content)
                     total_text_content_length += len(text_content)
                     text_content_length_stk.pop()
@@ -65,17 +62,8 @@ class RenderNode:
                 else:
                     text_content = v.render_start(context)
                     if text_content and (
-                        (
-                            total_text_content_length
-                            and no_auto_newline_count == 0
-                        )
-                        or
-                        (
-                            text_content_length_stk
-                            and text_content_length_stk[-1]
-                                == total_text_content_length
-                            and no_auto_indent_count == 0
-                        )
+                        total_text_content_length
+                        and no_auto_newline_count == 0
                     ):
                         text_content = "\n" + text_content
                     if no_auto_indent_count == 0 and text_content:
@@ -97,17 +85,8 @@ class RenderNode:
                 else:
                     text_content = v.render(context)
                     if text_content and (
-                        (
-                            total_text_content_length
-                            and no_auto_newline_count == 0
-                        )
-                        or
-                        (
-                            text_content_length_stk
-                            and text_content_length_stk[-1]
-                                == total_text_content_length
-                            and no_auto_indent_count == 0
-                        )
+                        total_text_content_length
+                        and no_auto_newline_count == 0
                     ):
                         text_content = "\n" + text_content
                     if no_auto_indent_count == 0 and text_content:
