@@ -686,25 +686,6 @@ class BuildContext:
     def is_exported_file_path(self, export_path: str):
         return export_path in self._exported_files
 
-    def get_page_export_path(self, page_path: str):
-        pass
-
-    def get_page_url(
-        self,
-        page_path: str,
-        relative_path: bool = True,
-        relative_to: Union[str, None] = None,
-    ):
-        pass
-
-    def get_file_url(
-        self,
-        export_path: str,
-        relative_path: bool = True,
-        relative_to: Union[str, None] = None,
-    ):
-        pass
-
 ROOT_BUILD_CONTEXT_CONFIG_DEFAULT_VALUES = {
     "export_root_path"                       : "./ophinode_exported_files",
     "default_layout"                         : None,
@@ -1049,20 +1030,4 @@ class RootBuildContext:
 
     def get_page_build_result(self, page_group_name: str):
         return self._page_build_results[page_group_name]
-
-    def get_page_url(
-        self,
-        page_path: str,
-        relative_path: bool = True,
-        relative_to: Union[str, None] = None,
-    ):
-        pass
-
-    def get_file_url(
-        self,
-        export_path: str,
-        relative_path: bool = True,
-        relative_to: Union[str, None] = None,
-    ):
-        pass
 
