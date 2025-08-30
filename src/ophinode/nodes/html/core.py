@@ -188,13 +188,20 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
         escape_ampersands = None,
         escape_tag_delimiters = None,
         children = None,
+        attributes = None,
         **kwargs
     ):
         self._children = list(args)
         if children is not None:
             for c in children:
                 self._children.append(c)
-        self._attributes = dict(kwargs)
+        self._attributes = {}
+        if attributes is not None:
+            for k, v in attributes.items():
+                self._attributes[k] = v
+        kwargs_copy = dict(kwargs)
+        for k, v in kwargs_copy.items():
+            self._attributes[k] = v
         if cls is not None:
             self._attributes["class"] = cls
         if className is not None:
@@ -276,9 +283,16 @@ class ClosedElement(Element, ClosedRenderable):
         accept_charset = None,
         escape_ampersands = None,
         escape_tag_delimiters = None,
+        attributes = None,
         **kwargs
     ):
-        self._attributes = dict(kwargs)
+        self._attributes = {}
+        if attributes is not None:
+            for k, v in attributes.items():
+                self._attributes[k] = v
+        kwargs_copy = dict(kwargs)
+        for k, v in kwargs_copy.items():
+            self._attributes[k] = v
         if cls is not None:
             self._attributes["class"] = cls
         if className is not None:
