@@ -133,7 +133,9 @@ class Element(Node):
                 if c in " \"'>/=":
                     raise InvalidAttributeNameError(k)
             v = self._attributes[k]
-            if isinstance(v, bool):
+            if v is None:
+                rendered.append("{}".format(k))
+            elif isinstance(v, bool):
                 if v:
                     rendered.append("{}".format(k))
             else:
