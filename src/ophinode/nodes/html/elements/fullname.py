@@ -434,7 +434,7 @@ class SourceElement(ClosedElement):
     tag = "source"
 
 class ImageElement(ClosedElement):
-    tag = "image"
+    tag = "img"
 
 class InlineFrameElement(OpenElement):
     tag = "iframe"
