@@ -4,6 +4,8 @@ __author__ = "deflatedlatte"
 __all__ = [
     "Site",
     "render_page",
+    "render_nodes",
+    "render_html",
     "ClosedRenderable",
     "OpenRenderable",
     "Expandable",
@@ -276,7 +278,7 @@ __all__ = [
     "Canvas",
 ]
 
-from .site import Site, render_page
+from .site import Site, render_page, render_nodes, render_html
 from .nodes.base import (
     ClosedRenderable,
     OpenRenderable,

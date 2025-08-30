@@ -9,6 +9,12 @@ else:
     Tuple = tuple
 
 from ophinode.nodes.base import Page, Layout
+from ophinode.nodes.html.core import HTML5Doctype
+from ophinode.nodes.html.elements.fullname import (
+    HtmlElement,
+    HeadElement,
+    BodyElement,
+)
 from .page_group import PageGroup
 from .page_definition import PageDefinition
 from .build_contexts import (
@@ -381,7 +387,17 @@ class Site:
         context = self.create_root_build_context()
         return context.build_site()
 
-def render_page(page: Page, default_layout: Union[Layout, None] = None):
+def render_page(
+    page: Page,
+    default_layout: Union[Layout, None] = None,
+    processors: Union[
+        Iterable[Tuple[str, Callable[[BuildContext], None]]],
+        Iterable[
+            Tuple[str, Callable[[BuildContext], None], Union[str, None]]
+        ],
+        None
+    ] = None,
+):
     config = {
         "export_root_path": "/",
         "build_strategy": "sync",
@@ -391,7 +407,50 @@ def render_page(page: Page, default_layout: Union[Layout, None] = None):
     }
     if default_layout is not None:
         config["default_layout"] = default_layout
-    site = Site(config, [("/", page)])
+    site = Site(config, [("/", page)], processors)
     context = site.build_site()
     result = context.get_page_build_result("default")
     return result["rendered_pages"]["/"]
+
+def render_nodes(
+    *nodes,
+    processors: Union[
+        Iterable[Tuple[str, Callable[[BuildContext], None]]],
+        Iterable[
+            Tuple[str, Callable[[BuildContext], None], Union[str, None]]
+        ],
+        None
+    ] = None,
+):
+    config = {
+        "export_root_path": "/",
+        "build_strategy": "sync",
+        "auto_write_exported_page_build_files": False,
+        "auto_write_exported_site_build_files": False,
+        "return_rendered_pages_after_page_build" : True,
+    }
+    class TempPage(Page):
+        def __init__(self, nodes):
+            self.nodes = nodes
+    class TempLayout(Layout):
+        def build(self, page: TempPage, context: BuildContext):
+            return page.nodes
+    config["default_layout"] = TempLayout()
+    site = Site(config, [("/", TempPage(list(nodes)))], processors)
+    context = site.build_site()
+    result = context.get_page_build_result("default")
+    return result["rendered_pages"]["/"]
+
+def render_html(
+    *nodes,
+    root_attributes: Union[Mapping, None] = None,
+    processors: Union[
+        Iterable[Tuple[str, Callable[[BuildContext], None]]],
+        Iterable[
+            Tuple[str, Callable[[BuildContext], None], Union[str, None]]
+        ],
+        None
+    ] = None,
+):
+    root = HtmlElement(list(nodes), attributes=root_attributes)
+    return render_nodes([HTML5Doctype(), root], processors=processors)
