@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ophinode"
-version = "0.0.1a10"
+version = "0.0.1a11"
 authors = [
   { name="deflatedlatte", email="deflatedlatte@gmail.com" },
 ]
