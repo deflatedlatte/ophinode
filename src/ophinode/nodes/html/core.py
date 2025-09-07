@@ -193,11 +193,17 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
         attributes = None,
         **kwargs
     ):
-        self._children = list(args)
+        self._children = []
+        self._attributes = {}
+        for arg in args:
+            if isinstance(arg, dict):
+                for k, v in arg.items():
+                    self._attributes[k] = v
+            else:
+                self._children.append(arg)
         if children is not None:
             for c in children:
                 self._children.append(c)
-        self._attributes = {}
         if attributes is not None:
             for k, v in attributes.items():
                 self._attributes[k] = v
@@ -272,7 +278,7 @@ class ClosedElement(Element, ClosedRenderable):
 
     def __init__(
         self,
-        *,
+        *args,
         cls = None,
         className = None,
         class_name = None,
@@ -289,6 +295,15 @@ class ClosedElement(Element, ClosedRenderable):
         **kwargs
     ):
         self._attributes = {}
+        for arg in args:
+            if isinstance(arg, dict):
+                for k, v in arg.items():
+                    self._attributes[k] = v
+            else:
+                raise TypeError(
+                    "ClosedElement does not accept non-dict objects as "
+                    "variadic arguments"
+                )
         if attributes is not None:
             for k, v in attributes.items():
                 self._attributes[k] = v
