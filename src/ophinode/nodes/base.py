@@ -6,6 +6,16 @@ class ClosedRenderable(ABC):
     def render(self, context: "ophinode.site.BuildContext"):
         pass
 
+    @property
+    def prevent_auto_newline_before_me(self):
+        "Disallow inserting auto newline before this renderable."
+        return False
+
+    @property
+    def prevent_auto_newline_after_me(self):
+        "Disallow inserting auto newline after this renderable."
+        return False
+
 class OpenRenderable(ABC):
     @abstractmethod
     def render_start(self, context: "ophinode.site.BuildContext"):
@@ -16,12 +26,49 @@ class OpenRenderable(ABC):
         pass
 
     @property
-    def auto_newline(self):
+    def auto_newline_between_children(self):
+        "Whether a newline is automatically inserted between children."
         return False
 
     @property
-    def auto_indent(self):
+    def pad_newline_after_opening(self):
+        """Insert newline after render_start().
+
+        A newline is inserted only if the render result of children is
+        a non-empty string.
+        """
+
         return False
+
+    @property
+    def pad_newline_before_closing(self):
+        """Insert newline before render_end().
+
+        A newline is inserted only if the render result of children is
+        a non-empty string.
+        """
+
+        return False
+
+    @property
+    def prevent_auto_newline_before_me(self):
+        "Disallow inserting auto newline before this renderable."
+        return False
+
+    @property
+    def prevent_auto_newline_after_me(self):
+        "Disallow inserting auto newline after this renderable."
+        return False
+
+    @property
+    def auto_indent_for_children(self):
+        "Automatically insert indentation in front of each child."
+        return False
+
+    @property
+    def auto_indent_string(self):
+        "A string to use as indentation before each child."
+        return "  "
 
 class Expandable(ABC):
     @abstractmethod

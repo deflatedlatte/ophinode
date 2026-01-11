@@ -24,82 +24,115 @@ class RenderNode:
     def render(self, context: "ophinode.site.BuildContext"):
         result = []
         depth = 0
-        stk = collections.deque()
-        stk.append((self, False))
+
+        render_stk = collections.deque()
+        current_render = []
+
+        renderables_stk = collections.deque()
+        renderables_stk.append((self, False))
+
         no_auto_newline_count = 0
         no_auto_indent_count = 0
-        total_text_content_length = 0
-        text_content_length_stk = collections.deque()
-        while stk:
-            render_node, revisited = stk.pop()
+        auto_indent_string_stk = collections.deque()
+        auto_indent_string_stk.append("  ")
+
+        first_child = True
+        auto_newline_blocked = False
+        auto_indent_string = auto_indent_string_stk[-1]
+        while renderables_stk:
+            render_node, revisited = renderables_stk.pop()
             v, c = render_node._value, render_node._children
             if isinstance(v, OpenRenderable):
                 if revisited:
+                    # flush the render result of children
+                    children_content = "".join(current_render)
+                    if (
+                        children_content
+                        and v.pad_newline_after_opening
+                    ):
+                        if no_auto_indent_count == 0:
+                            prefix = "\n" + auto_indent_string*depth
+                        else:
+                            prefix = "\n"
+                        children_content = prefix + children_content
                     depth -= 1
+                    current_render = render_stk.pop()
+                    current_render.append(children_content)
+
+                    # render closing
                     text_content = v.render_end(context)
-                    if not (
-                        text_content_length_stk
-                        and text_content_length_stk[-1]
-                            == total_text_content_length
+                    if (
+                        text_content
+                        and v.pad_newline_before_closing
+                        and not children_content.endswith("\n")
                     ):
-                        if (
-                            text_content
-                            and total_text_content_length
-                            and no_auto_newline_count == 0
-                        ):
-                            text_content = "\n" + text_content
-                    if no_auto_indent_count == 0 and text_content:
-                        text_content = ("\n"+"  "*depth).join(
-                            text_content.split("\n")
-                        )
-                    result.append(text_content)
-                    total_text_content_length += len(text_content)
-                    text_content_length_stk.pop()
-                    if not v.auto_newline:
+                        text_content = "\n" + text_content
+                    if not v.auto_newline_between_children:
                         no_auto_newline_count -= 1
-                    if not v.auto_indent:
+                    if not v.auto_indent_for_children:
                         no_auto_indent_count -= 1
+                    if no_auto_indent_count == 0 and text_content:
+                        prefix = "\n" + auto_indent_string*depth
+                        text_content = prefix.join(text_content.split("\n"))
+                    current_render.append(text_content)
+                    first_child = False
+                    if v.prevent_auto_newline_after_me:
+                        auto_newline_blocked = True
+                    else:
+                        auto_newline_blocked = False
+                    auto_indent_string_stk.pop()
+                    auto_indent_string = auto_indent_string_stk[-1]
                 else:
+                    # render opening
                     text_content = v.render_start(context)
-                    if text_content and (
-                        total_text_content_length
+                    if (
+                        text_content
+                        and not first_child
                         and no_auto_newline_count == 0
+                        and not v.prevent_auto_newline_before_me
+                        and not auto_newline_blocked
                     ):
                         text_content = "\n" + text_content
                     if no_auto_indent_count == 0 and text_content:
-                        text_content = ("\n"+"  "*depth).join(
-                            text_content.split("\n")
-                        )
-                    result.append(text_content)
-                    total_text_content_length += len(text_content)
-                    text_content_length_stk.append(total_text_content_length)
-                    if not v.auto_newline:
+                        prefix = "\n" + auto_indent_string*depth
+                        text_content = prefix.join(text_content.split("\n"))
+                    current_render.append(text_content)
+                    render_stk.append(current_render)
+                    current_render = []
+                    if not v.auto_newline_between_children:
                         no_auto_newline_count += 1
-                    if not v.auto_indent:
+                    if not v.auto_indent_for_children:
                         no_auto_indent_count += 1
-                    stk.append((render_node, True))
+                    renderables_stk.append((render_node, True))
                     depth += 1
+                    first_child = True
+                    auto_newline_blocked = False
+                    auto_indent_string = v.auto_indent_string
+                    auto_indent_string_stk.append(auto_indent_string)
             elif isinstance(v, ClosedRenderable):
-                if revisited:
-                    depth -= 1
+                text_content = v.render(context)
+                if (
+                    text_content
+                    and not first_child
+                    and no_auto_newline_count == 0
+                    and not v.prevent_auto_newline_before_me
+                    and not auto_newline_blocked
+                ):
+                    text_content = "\n" + text_content
+                if no_auto_indent_count == 0 and text_content:
+                    prefix = "\n" + auto_indent_string*depth
+                    text_content = prefix.join(text_content.split("\n"))
+                current_render.append(text_content)
+                first_child = False
+                if v.prevent_auto_newline_after_me:
+                    auto_newline_blocked = True
                 else:
-                    text_content = v.render(context)
-                    if text_content and (
-                        total_text_content_length
-                        and no_auto_newline_count == 0
-                    ):
-                        text_content = "\n" + text_content
-                    if no_auto_indent_count == 0 and text_content:
-                        text_content = ("\n"+"  "*depth).join(
-                            text_content.split("\n")
-                        )
-                    result.append(text_content)
-                    total_text_content_length += len(text_content)
-                    stk.append((render_node, True))
-                    depth += 1
+                    auto_newline_blocked = False
+            else:
+                auto_newline_blocked = False
             if not revisited and c:
                 for i in reversed(c):
-                    stk.append((i, False))
-        result.append("\n")
+                    renderables_stk.append((i, False))
+        result.append("".join(current_render))
         return "".join(result)
 
