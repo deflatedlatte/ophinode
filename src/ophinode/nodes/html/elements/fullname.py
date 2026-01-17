@@ -163,7 +163,7 @@ class StyleElement(OpenElement):
         for c in self._children:
             if isinstance(c, str):
                 # Stylesheets might contain "</style", so it must be escaped
-                content = c.replace("</script", "\\3C/script")
+                content = c.replace("</style", "\\3C/style")
                 node = TextNode(content)
                 if self._escape_ampersands is not None:
                     node.escape_ampersands(self._escape_ampersands)
