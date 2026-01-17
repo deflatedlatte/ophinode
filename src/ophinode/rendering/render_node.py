@@ -64,7 +64,7 @@ class RenderNode:
                     if (
                         text_content
                         and v.pad_newline_before_closing
-                        and not children_content.endswith("\n")
+                        and children_content
                     ):
                         text_content = "\n" + text_content
                     if not v.auto_newline_between_children:
