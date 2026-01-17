@@ -57,9 +57,25 @@ class TextNode(Node, ClosedRenderable):
         self._escape_tag_delimiters = bool(value)
         return self
 
+    @property
+    def prevent_auto_newline_before_me(self):
+        return True
+
+    @property
+    def prevent_auto_newline_after_me(self):
+        return False
+
 class HTML5Doctype(Node, ClosedRenderable):
     def render(self, context: "ophinode.site.BuildContext"):
         return "<!doctype html>"
+
+    @property
+    def prevent_auto_newline_before_me(self):
+        return False
+
+    @property
+    def prevent_auto_newline_after_me(self):
+        return False
 
 class CDATASection(Node, OpenRenderable, Expandable, Preparable):
     def __init__(self, *args):
@@ -84,11 +100,27 @@ class CDATASection(Node, OpenRenderable, Expandable, Preparable):
         return self._children
 
     @property
-    def auto_newline(self):
+    def auto_newline_between_children(self):
         return False
 
     @property
-    def auto_indent(self):
+    def pad_newline_after_opening(self):
+        return False
+
+    @property
+    def pad_newline_before_closing(self):
+        return False
+
+    @property
+    def prevent_auto_newline_before_me(self):
+        return True
+
+    @property
+    def prevent_auto_newline_after_me(self):
+        return False
+
+    @property
+    def auto_indent_for_children(self):
         return False
 
 class Comment(Node, OpenRenderable, Expandable, Preparable):
@@ -110,11 +142,27 @@ class Comment(Node, OpenRenderable, Expandable, Preparable):
         return "-->".format(self.tag)
 
     @property
-    def auto_newline(self):
+    def auto_newline_between_children(self):
         return False
 
     @property
-    def auto_indent(self):
+    def pad_newline_after_opening(self):
+        return False
+
+    @property
+    def pad_newline_before_closing(self):
+        return False
+
+    @property
+    def prevent_auto_newline_before_me(self):
+        return True
+
+    @property
+    def prevent_auto_newline_after_me(self):
+        return False
+
+    @property
+    def auto_indent_for_children(self):
         return False
 
 class Element(Node):
@@ -172,7 +220,7 @@ class Element(Node):
 
 class OpenElement(Element, OpenRenderable, Expandable, Preparable):
     tag = "div"
-    render_mode = "hierarchy"
+    render_mode = "block"
 
     def __init__(
         self,
@@ -266,12 +314,28 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
         return self._children
 
     @property
-    def auto_newline(self):
-        return self.render_mode == "hierarchy"
+    def auto_newline_between_children(self):
+        return self.render_mode == "block"
 
     @property
-    def auto_indent(self):
-        return self.render_mode == "phrase" or self.render_mode == "hierarchy"
+    def pad_newline_after_opening(self):
+        return self.render_mode == "block"
+
+    @property
+    def pad_newline_before_closing(self):
+        return self.render_mode == "block"
+
+    @property
+    def prevent_auto_newline_before_me(self):
+        return self.render_mode == "inline" or self.render_mode == "inline-preformatted"
+
+    @property
+    def prevent_auto_newline_after_me(self):
+        return False
+
+    @property
+    def auto_indent_for_children(self):
+        return self.render_mode == "inline" or self.render_mode == "block"
 
 class ClosedElement(Element, ClosedRenderable):
     tag = "meta"
@@ -338,4 +402,12 @@ class ClosedElement(Element, ClosedRenderable):
         if rendered_attributes:
             return "<{} {}>".format(self.tag, rendered_attributes)
         return "<{}>".format(self.tag)
+
+    @property
+    def prevent_auto_newline_before_me(self):
+        return self.render_mode != "block"
+
+    @property
+    def prevent_auto_newline_after_me(self):
+        return False
 
