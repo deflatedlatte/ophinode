@@ -22,7 +22,6 @@ class RenderNode:
         return self._parent
 
     def render(self, context: "ophinode.site.BuildContext"):
-        result = []
         depth = 0
 
         render_stk = collections.deque()
@@ -147,6 +146,7 @@ class RenderNode:
             if not revisited and c:
                 for i in reversed(c):
                     renderables_stk.append((i, False))
-        result.append("".join(current_render))
-        return "".join(result)
+        if context.get_config_value("append_newline_to_render_result"):
+            current_render.append("\n")
+        return "".join(current_render)
 

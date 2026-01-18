@@ -25,6 +25,7 @@ PAGE_GROUP_CONFIG_DEFAULT_VALUES = {
     "disable_auto_newline_when_rendering"    : False,
     "disable_auto_indent_when_rendering"     : False,
     "auto_indent_string_for_top_level"       : "  ",
+    "append_newline_to_render_result"        : False,
 }
 PAGE_GROUP_CONFIG_KEYS = set(PAGE_GROUP_CONFIG_DEFAULT_VALUES)
 
