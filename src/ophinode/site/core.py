@@ -402,13 +402,23 @@ def render_page(
         ],
         None
     ] = None,
+    escape_ampersands: bool = False,
+    escape_tag_delimiters: bool = True,
+    auto_newline: bool = True,
+    auto_indent: bool = True,
+    auto_indent_string: str = "  ",
 ):
     config = {
         "export_root_path": "/",
         "build_strategy": "sync",
         "auto_write_exported_page_build_files": False,
         "auto_write_exported_site_build_files": False,
-        "return_rendered_pages_after_page_build" : True,
+        "return_rendered_pages_after_page_build": True,
+        "html_default_escape_ampersands": escape_ampersands,
+        "html_default_escape_tag_delimiters": escape_tag_delimiters,
+        "disable_auto_newline_when_rendering": not auto_newline,
+        "disable_auto_indent_when_rendering": not auto_indent,
+        "auto_indent_string_for_top_level": auto_indent_string,
     }
     if default_layout is not None:
         config["default_layout"] = default_layout
@@ -426,13 +436,23 @@ def render_nodes(
         ],
         None
     ] = None,
+    escape_ampersands: bool = False,
+    escape_tag_delimiters: bool = True,
+    auto_newline: bool = True,
+    auto_indent: bool = True,
+    auto_indent_string: str = "  ",
 ):
     config = {
         "export_root_path": "/",
         "build_strategy": "sync",
         "auto_write_exported_page_build_files": False,
         "auto_write_exported_site_build_files": False,
-        "return_rendered_pages_after_page_build" : True,
+        "return_rendered_pages_after_page_build": True,
+        "html_default_escape_ampersands": escape_ampersands,
+        "html_default_escape_tag_delimiters": escape_tag_delimiters,
+        "disable_auto_newline_when_rendering": not auto_newline,
+        "disable_auto_indent_when_rendering": not auto_indent,
+        "auto_indent_string_for_top_level": auto_indent_string,
     }
     class TempPage(Page):
         def __init__(self, nodes):
@@ -456,6 +476,19 @@ def render_html(
         ],
         None
     ] = None,
+    escape_ampersands: bool = False,
+    escape_tag_delimiters: bool = True,
+    auto_newline: bool = True,
+    auto_indent: bool = True,
+    auto_indent_string: str = "  ",
 ):
     root = HtmlElement(list(nodes), attributes=root_attributes)
-    return render_nodes([HTML5Doctype(), root], processors=processors)
+    return render_nodes(
+        [HTML5Doctype(), root],
+        processors=processors,
+        escape_ampersands=escape_ampersands,
+        escape_tag_delimiters=escape_tag_delimiters,
+        auto_newline=auto_newline,
+        auto_indent=auto_indent,
+        auto_indent_string=auto_indent_string,
+    )
