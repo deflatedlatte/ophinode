@@ -1,6 +1,4 @@
 __all__ = [
-    "default_escape_ampersands",
-    "default_escape_tag_delimiters",
     "HTML5Page",
     "HTML5Layout",
     "Node",
@@ -268,8 +266,6 @@ __all__ = [
 ]
 
 from .core import (
-    default_escape_ampersands,
-    default_escape_tag_delimiters,
     Node,
     TextNode,
     HTML5Doctype,

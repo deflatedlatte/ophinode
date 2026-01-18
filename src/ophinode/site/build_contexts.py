@@ -66,6 +66,8 @@ BUILD_CONTEXT_CONFIG_DEFAULT_VALUES = {
     "return_expanded_pages_after_page_build" : False,
     "return_rendered_pages_after_page_build" : False,
     "return_exported_files_after_page_build" : True,
+    "html_default_escape_ampersands"         : False,
+    "html_default_escape_tag_delimiters"     : True,
 }
 BUILD_CONTEXT_CONFIG_KEYS = set(BUILD_CONTEXT_CONFIG_DEFAULT_VALUES)
 
@@ -704,6 +706,8 @@ ROOT_BUILD_CONTEXT_CONFIG_DEFAULT_VALUES = {
     "return_rendered_pages_after_page_build" : False,
     "return_exported_files_after_page_build" : True,
     "gather_and_merge_page_build_results"    : True,
+    "html_default_escape_ampersands"         : False,
+    "html_default_escape_tag_delimiters"     : True,
 }
 ROOT_BUILD_CONTEXT_CONFIG_KEYS = set(ROOT_BUILD_CONTEXT_CONFIG_DEFAULT_VALUES)
 

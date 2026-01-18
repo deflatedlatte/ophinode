@@ -6,17 +6,6 @@ from ..base import (
 )
 from ophinode.exceptions import InvalidAttributeNameError
 
-_default_escape_ampersands = False
-_default_escape_tag_delimiters = True
-
-def default_escape_ampersands(value: bool = True):
-    global _default_escape_ampersands
-    _default_escape_ampersands = bool(value)
-
-def default_escape_tag_delimiters(value: bool = True):
-    global _default_escape_tag_delimiters
-    _default_escape_tag_delimiters = bool(value)
-
 class Node:
     pass
 
@@ -37,13 +26,17 @@ class TextNode(Node, ClosedRenderable):
 
         escape_ampersands = self._escape_ampersands
         if escape_ampersands is None:
-            escape_ampersands = _default_escape_ampersands
+            escape_ampersands = context.get_config_value(
+                "html_default_escape_ampersands"
+            )
         if escape_ampersands:
             text_content = text_content.replace("&", "&amp;")
 
         escape_tag_delimiters = self._escape_tag_delimiters
         if escape_tag_delimiters is None:
-            escape_tag_delimiters = _default_escape_tag_delimiters
+            escape_tag_delimiters = context.get_config_value(
+                "html_default_escape_tag_delimiters"
+            )
         if escape_tag_delimiters:
             text_content = text_content.replace("<", "&lt;").replace(">", "&gt;")
 
@@ -166,7 +159,7 @@ class Comment(Node, OpenRenderable, Expandable, Preparable):
         return False
 
 class Element(Node):
-    def render_attributes(self):
+    def render_attributes(self, context: "ophinode.site.BuildContext"):
         attribute_order = []
         keys = set(self._attributes)
         for k in ["id", "class", "style", "title"]:
@@ -191,13 +184,17 @@ class Element(Node):
 
                 escape_ampersands = self._escape_ampersands
                 if escape_ampersands is None:
-                    escape_ampersands = _default_escape_ampersands
+                    escape_ampersands = context.get_config_value(
+                        "html_default_escape_ampersands"
+                    )
                 if escape_ampersands:
                     escaped = escaped.replace("&", "&amp;")
 
                 escape_tag_delimiters = self._escape_tag_delimiters
                 if escape_tag_delimiters is None:
-                    escape_tag_delimiters = _default_escape_tag_delimiters
+                    escape_tag_delimiters = context.get_config_value(
+                        "html_default_escape_tag_delimiters"
+                    )
                 if escape_tag_delimiters:
                     escaped = escaped.replace("<", "&lt;").replace(">", "&gt;")
 
@@ -301,7 +298,7 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
         return expansion
 
     def render_start(self, context: "ophinode.site.BuildContext"):
-        rendered_attributes = self.render_attributes()
+        rendered_attributes = self.render_attributes(context)
         if rendered_attributes:
             return "<{} {}>".format(self.tag, rendered_attributes)
         return "<{}>".format(self.tag)
@@ -398,7 +395,7 @@ class ClosedElement(Element, ClosedRenderable):
         self._escape_tag_delimiters = escape_tag_delimiters
 
     def render(self, context: "ophinode.site.BuildContext"):
-        rendered_attributes = self.render_attributes()
+        rendered_attributes = self.render_attributes(context)
         if rendered_attributes:
             return "<{} {}>".format(self.tag, rendered_attributes)
         return "<{}>".format(self.tag)
