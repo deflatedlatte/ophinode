@@ -45,6 +45,9 @@ SITE_CONFIG_DEFAULT_VALUES = {
     "gather_and_merge_page_build_results"    : True,
     "html_default_escape_ampersands"         : False,
     "html_default_escape_tag_delimiters"     : True,
+    "disable_auto_newline_when_rendering"    : False,
+    "disable_auto_indent_when_rendering"     : False,
+    "auto_indent_string_for_top_level"       : "  ",
 }
 SITE_CONFIG_KEYS = set(SITE_CONFIG_DEFAULT_VALUES)
 

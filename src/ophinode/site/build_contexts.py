@@ -68,6 +68,9 @@ BUILD_CONTEXT_CONFIG_DEFAULT_VALUES = {
     "return_exported_files_after_page_build" : True,
     "html_default_escape_ampersands"         : False,
     "html_default_escape_tag_delimiters"     : True,
+    "disable_auto_newline_when_rendering"    : False,
+    "disable_auto_indent_when_rendering"     : False,
+    "auto_indent_string_for_top_level"       : "  ",
 }
 BUILD_CONTEXT_CONFIG_KEYS = set(BUILD_CONTEXT_CONFIG_DEFAULT_VALUES)
 
@@ -708,6 +711,9 @@ ROOT_BUILD_CONTEXT_CONFIG_DEFAULT_VALUES = {
     "gather_and_merge_page_build_results"    : True,
     "html_default_escape_ampersands"         : False,
     "html_default_escape_tag_delimiters"     : True,
+    "disable_auto_newline_when_rendering"    : False,
+    "disable_auto_indent_when_rendering"     : False,
+    "auto_indent_string_for_top_level"       : "  ",
 }
 ROOT_BUILD_CONTEXT_CONFIG_KEYS = set(ROOT_BUILD_CONTEXT_CONFIG_DEFAULT_VALUES)
 

@@ -34,11 +34,15 @@ class RenderNode:
         no_auto_newline_count = 0
         no_auto_indent_count = 0
         auto_indent_string_stk = collections.deque()
-        auto_indent_string_stk.append("  ")
+
+        if context.get_config_value("disable_auto_newline_when_rendering"):
+            no_auto_newline_count += 1
+        if context.get_config_value("disable_auto_indent_when_rendering"):
+            no_auto_indent_count += 1
 
         first_child = True
         auto_newline_blocked = False
-        auto_indent_string = auto_indent_string_stk[-1]
+        auto_indent_string = "".join(auto_indent_string_stk)
         while renderables_stk:
             render_node, revisited = renderables_stk.pop()
             v, c = render_node._value, render_node._children
@@ -52,13 +56,15 @@ class RenderNode:
                         and v.pad_newline_after_opening
                     ):
                         if no_auto_indent_count == 0:
-                            prefix = "\n" + auto_indent_string*depth
+                            prefix = "\n" + auto_indent_string
                         else:
                             prefix = "\n"
                         children_content = prefix + children_content
-                    depth -= 1
                     current_render = render_stk.pop()
                     current_render.append(children_content)
+                    depth -= 1
+                    auto_indent_string_stk.pop()
+                    auto_indent_string = "".join(auto_indent_string_stk)
 
                     # render closing
                     text_content = v.render_end(context)
@@ -74,7 +80,7 @@ class RenderNode:
                     if not v.auto_indent_for_children:
                         no_auto_indent_count -= 1
                     if no_auto_indent_count == 0 and text_content:
-                        prefix = "\n" + auto_indent_string*depth
+                        prefix = "\n" + auto_indent_string
                         text_content = prefix.join(text_content.split("\n"))
                     current_render.append(text_content)
                     first_child = False
@@ -82,8 +88,6 @@ class RenderNode:
                         auto_newline_blocked = True
                     else:
                         auto_newline_blocked = False
-                    auto_indent_string_stk.pop()
-                    auto_indent_string = auto_indent_string_stk[-1]
                 else:
                     # render opening
                     text_content = v.render_start(context)
@@ -96,7 +100,7 @@ class RenderNode:
                     ):
                         text_content = "\n" + text_content
                     if no_auto_indent_count == 0 and text_content:
-                        prefix = "\n" + auto_indent_string*depth
+                        prefix = "\n" + auto_indent_string
                         text_content = prefix.join(text_content.split("\n"))
                     current_render.append(text_content)
                     render_stk.append(current_render)
@@ -109,8 +113,16 @@ class RenderNode:
                     depth += 1
                     first_child = True
                     auto_newline_blocked = False
-                    auto_indent_string = v.auto_indent_string
-                    auto_indent_string_stk.append(auto_indent_string)
+                    child_indent_string = v.auto_indent_string
+                    if child_indent_string is None:
+                        if auto_indent_string_stk:
+                            child_indent_string = auto_indent_string_stk[-1]
+                        else:
+                            child_indent_string = context.get_config_value(
+                                "auto_indent_string_for_top_level"
+                            )
+                    auto_indent_string_stk.append(child_indent_string)
+                    auto_indent_string = "".join(auto_indent_string_stk)
             elif isinstance(v, ClosedRenderable):
                 text_content = v.render(context)
                 if (
@@ -122,7 +134,7 @@ class RenderNode:
                 ):
                     text_content = "\n" + text_content
                 if no_auto_indent_count == 0 and text_content:
-                    prefix = "\n" + auto_indent_string*depth
+                    prefix = "\n" + auto_indent_string
                     text_content = prefix.join(text_content.split("\n"))
                 current_render.append(text_content)
                 first_child = False

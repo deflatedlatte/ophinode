@@ -74,8 +74,12 @@ class OpenRenderable(ABC):
 
     @property
     def auto_indent_string(self):
-        "A string to use as indentation before each child."
-        return "  "
+        """A string to use as indentation before each child.
+
+        If None, the parent's indentation string is used instead.
+        """
+
+        return None
 
 class Expandable(ABC):
     @abstractmethod
