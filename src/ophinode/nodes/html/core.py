@@ -93,7 +93,7 @@ class CDATASection(Node, OpenRenderable, Expandable, Preparable):
         return self._children
 
     @property
-    def auto_newline_between_children(self):
+    def auto_newline_for_children(self):
         return False
 
     @property
@@ -135,7 +135,7 @@ class Comment(Node, OpenRenderable, Expandable, Preparable):
         return "-->".format(self.tag)
 
     @property
-    def auto_newline_between_children(self):
+    def auto_newline_for_children(self):
         return False
 
     @property
@@ -311,7 +311,7 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
         return self._children
 
     @property
-    def auto_newline_between_children(self):
+    def auto_newline_for_children(self):
         return self.render_mode == "block"
 
     @property

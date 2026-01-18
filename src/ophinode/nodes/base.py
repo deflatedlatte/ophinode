@@ -26,8 +26,13 @@ class OpenRenderable(ABC):
         pass
 
     @property
-    def auto_newline_between_children(self):
-        "Whether a newline is automatically inserted between children."
+    def auto_newline_for_children(self):
+        """Whether auto newline insertion is enabled for children.
+
+        If True, a newline is inserted between each two children when
+        rendering.
+        """
+
         return False
 
     @property
@@ -35,7 +40,8 @@ class OpenRenderable(ABC):
         """Insert newline after render_start().
 
         A newline is inserted only if the render result of children is
-        a non-empty string.
+        a non-empty string, and auto newline is enabled in the current
+        context.
         """
 
         return False
@@ -45,7 +51,8 @@ class OpenRenderable(ABC):
         """Insert newline before render_end().
 
         A newline is inserted only if the render result of children is
-        a non-empty string.
+        a non-empty string, and auto newline is enabled in the current
+        context.
         """
 
         return False

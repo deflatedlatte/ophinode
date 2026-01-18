@@ -67,7 +67,7 @@ class RenderNode:
                         and children_content
                     ):
                         text_content = "\n" + text_content
-                    if not v.auto_newline_between_children:
+                    if not v.auto_newline_for_children:
                         no_auto_newline_count -= 1
                     if not v.auto_indent_for_children:
                         no_auto_indent_count -= 1
@@ -99,7 +99,7 @@ class RenderNode:
                     current_render.append(text_content)
                     render_stk.append(current_render)
                     current_render = []
-                    if not v.auto_newline_between_children:
+                    if not v.auto_newline_for_children:
                         no_auto_newline_count += 1
                     if not v.auto_indent_for_children:
                         no_auto_indent_count += 1
