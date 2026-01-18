@@ -48,6 +48,7 @@ class RenderNode:
                     children_content = "".join(current_render)
                     if (
                         children_content
+                        and no_auto_newline_count == 0
                         and v.pad_newline_after_opening
                     ):
                         if no_auto_indent_count == 0:
@@ -63,6 +64,7 @@ class RenderNode:
                     text_content = v.render_end(context)
                     if (
                         text_content
+                        and no_auto_newline_count == 0
                         and v.pad_newline_before_closing
                         and children_content
                     ):
