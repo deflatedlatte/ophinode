@@ -141,6 +141,75 @@ __all__ = [
     "Template",
     "Slot",
     "Canvas",
+    "Svg",
+    "SvgA",
+    "SVGA",
+    "Animate",
+    "AnimateMotion",
+    "AnimateTransform",
+    "Circle",
+    "ClipPath",
+    "Defs",
+    "Desc",
+    "Ellipse",
+    "Filter",
+    "FeBlend",
+    "FeColorMatrix",
+    "FeComponentTransfer",
+    "FeComposite",
+    "FeConvolveMatrix",
+    "FeDiffuseLighting",
+    "FeDisplacementMap",
+    "FeDistantLight",
+    "FeDropShadow",
+    "FeFlood",
+    "FeFuncA",
+    "FeFuncB",
+    "FeFuncG",
+    "FeFuncR",
+    "FeGaussianBlur",
+    "FeImage",
+    "FeMerge",
+    "FeMergeNode",
+    "FeMorphology",
+    "FeOffset",
+    "FePointLight",
+    "FeSpecularLighting",
+    "FeSpotLight",
+    "FeTile",
+    "FeTurbulence",
+    "ForeignObject",
+    "G",
+    "Image",
+    "Line",
+    "LinearGradient",
+    "Marker",
+    "Mask",
+    "Metadata",
+    "Mpath",
+    "MPath",
+    "Path",
+    "Pattern",
+    "Polygon",
+    "Polyline",
+    "RadialGradient",
+    "Rect",
+    "SvgScript",
+    "SVGScript",
+    "Set",
+    "Stop",
+    "SvgStyle",
+    "SVGStyle",
+    "Switch",
+    "Symbol",
+    "Text",
+    "TextPath",
+    "Tspan",
+    "TSpan",
+    "SvgTitle",
+    "SVGTitle",
+    "Use",
+    "View",
 ]
 
 from .fullname import (
@@ -256,6 +325,69 @@ from .fullname import (
     TemplateElement,
     SlotElement,
     CanvasElement,
+    SVGElement,
+    SVGAnchorElement,
+    SVGAnimateElement,
+    SVGAnimateMotionElement,
+    SVGAnimateTransformElement,
+    SVGCircleElement,
+    SVGClipPathElement,
+    SVGDefinitionsElement,
+    SVGDescriptionElement,
+    SVGEllipseElement,
+    SVGFilterElement,
+    SVGFilterBlendElement,
+    SVGFilterColorMatrixElement,
+    SVGFilterComponentTransferElement,
+    SVGFilterCompositeElement,
+    SVGFilterConvolveMatrixElement,
+    SVGFilterDiffuseLightingElement,
+    SVGFilterDisplacementMapElement,
+    SVGFilterDistantLightElement,
+    SVGFilterDropShadowElement,
+    SVGFilterFloodElement,
+    SVGFilterFunctionAlphaElement,
+    SVGFilterFunctionBlueElement,
+    SVGFilterFunctionGreenElement,
+    SVGFilterFunctionRedElement,
+    SVGFilterGaussianBlurElement,
+    SVGFilterImageElement,
+    SVGFilterMergeElement,
+    SVGFilterMergeNodeElement,
+    SVGFilterMorphologyElement,
+    SVGFilterOffsetElement,
+    SVGFilterPointLightElement,
+    SVGFilterSpecularLightingElement,
+    SVGFilterSpotLightElement,
+    SVGFilterTileElement,
+    SVGFilterTurbulenceElement,
+    SVGForeignObjectElement,
+    SVGGroupElement,
+    SVGImageElement,
+    SVGLineElement,
+    SVGLinearGradientElement,
+    SVGMarkerElement,
+    SVGMaskElement,
+    SVGMetadataElement,
+    SVGMotionPathElement,
+    SVGPathElement,
+    SVGPatternElement,
+    SVGPolygonElement,
+    SVGPolylineElement,
+    SVGRadialGradientElement,
+    SVGRectangleElement,
+    SVGScriptElement,
+    SVGSetElement,
+    SVGStopElement,
+    SVGStyleElement,
+    SVGSwitchElement,
+    SVGSymbolElement,
+    SVGTextElement,
+    SVGTextPathElement,
+    SVGTextSpanElement,
+    SVGTitleElement,
+    SVGUseElement,
+    SVGViewElement,
 )
 
 Html = HtmlElement
@@ -400,4 +532,73 @@ Noscript = NoScriptElement
 Template = TemplateElement
 Slot = SlotElement
 Canvas = CanvasElement
+Svg = SVGElement
+SvgA = SVGAnchorElement
+SVGA = SVGAnchorElement
+Animate = SVGAnimateElement
+AnimateMotion = SVGAnimateMotionElement
+AnimateTransform = SVGAnimateTransformElement
+Circle = SVGCircleElement
+ClipPath = SVGClipPathElement
+Defs = SVGDefinitionsElement
+Desc = SVGDescriptionElement
+Ellipse = SVGEllipseElement
+Filter = SVGFilterElement
+FeBlend = SVGFilterBlendElement
+FeColorMatrix = SVGFilterColorMatrixElement
+FeComponentTransfer = SVGFilterComponentTransferElement
+FeComposite = SVGFilterCompositeElement
+FeConvolveMatrix = SVGFilterConvolveMatrixElement
+FeDiffuseLighting = SVGFilterDiffuseLightingElement
+FeDisplacementMap = SVGFilterDisplacementMapElement
+FeDistantLight = SVGFilterDistantLightElement
+FeDropShadow = SVGFilterDropShadowElement
+FeFlood = SVGFilterFloodElement
+FeFuncA = SVGFilterFunctionAlphaElement
+FeFuncB = SVGFilterFunctionBlueElement
+FeFuncG = SVGFilterFunctionGreenElement
+FeFuncR = SVGFilterFunctionRedElement
+FeGaussianBlur = SVGFilterGaussianBlurElement
+FeImage = SVGFilterImageElement
+FeMerge = SVGFilterMergeElement
+FeMergeNode = SVGFilterMergeNodeElement
+FeMorphology = SVGFilterMorphologyElement
+FeOffset = SVGFilterOffsetElement
+FePointLight = SVGFilterPointLightElement
+FeSpecularLighting = SVGFilterSpecularLightingElement
+FeSpotLight = SVGFilterSpotLightElement
+FeTile = SVGFilterTileElement
+FeTurbulence = SVGFilterTurbulenceElement
+ForeignObject = SVGForeignObjectElement
+G = SVGGroupElement
+Image = SVGImageElement
+Line = SVGLineElement
+LinearGradient = SVGLinearGradientElement
+Marker = SVGMarkerElement
+Mask = SVGMaskElement
+Metadata = SVGMetadataElement
+Mpath = SVGMotionPathElement
+MPath = SVGMotionPathElement
+Path = SVGPathElement
+Pattern = SVGPatternElement
+Polygon = SVGPolygonElement
+Polyline = SVGPolylineElement
+RadialGradient = SVGRadialGradientElement
+Rect = SVGRectangleElement
+SvgScript = SVGScriptElement
+SVGScript = SVGScriptElement
+Set = SVGSetElement
+Stop = SVGStopElement
+SvgStyle = SVGStyleElement
+SVGStyle = SVGStyleElement
+Switch = SVGSwitchElement
+Symbol = SVGSymbolElement
+Text = SVGTextElement
+TextPath = SVGTextPathElement
+Tspan = SVGTextSpanElement
+TSpan = SVGTextSpanElement
+SvgTitle = SVGTitleElement
+SVGTitle = SVGTitleElement
+Use = SVGUseElement
+View = SVGViewElement
 
