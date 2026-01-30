@@ -111,6 +111,69 @@ __all__ = [
     "TemplateElement",
     "SlotElement",
     "CanvasElement",
+    "SVGElement",
+    "SVGAnchorElement",
+    "SVGAnimateElement",
+    "SVGAnimateMotionElement",
+    "SVGAnimateTransformElement",
+    "SVGCircleElement",
+    "SVGClipPathElement",
+    "SVGDefinitionsElement",
+    "SVGDescriptionElement",
+    "SVGEllipseElement",
+    "SVGFilterElement",
+    "SVGFilterBlendElement",
+    "SVGFilterColorMatrixElement",
+    "SVGFilterComponentTransferElement",
+    "SVGFilterCompositeElement",
+    "SVGFilterConvolveMatrixElement",
+    "SVGFilterDiffuseLightingElement",
+    "SVGFilterDisplacementMapElement",
+    "SVGFilterDistantLightElement",
+    "SVGFilterDropShadowElement",
+    "SVGFilterFloodElement",
+    "SVGFilterFunctionAlphaElement",
+    "SVGFilterFunctionBlueElement",
+    "SVGFilterFunctionGreenElement",
+    "SVGFilterFunctionRedElement",
+    "SVGFilterGaussianBlurElement",
+    "SVGFilterImageElement",
+    "SVGFilterMergeElement",
+    "SVGFilterMergeNodeElement",
+    "SVGFilterMorphologyElement",
+    "SVGFilterOffsetElement",
+    "SVGFilterPointLightElement",
+    "SVGFilterSpecularLightingElement",
+    "SVGFilterSpotLightElement",
+    "SVGFilterTileElement",
+    "SVGFilterTurbulenceElement",
+    "SVGForeignObjectElement",
+    "SVGGroupElement",
+    "SVGImageElement",
+    "SVGLineElement",
+    "SVGLinearGradientElement",
+    "SVGMarkerElement",
+    "SVGMaskElement",
+    "SVGMetadataElement",
+    "SVGMotionPathElement",
+    "SVGPathElement",
+    "SVGPatternElement",
+    "SVGPolygonElement",
+    "SVGPolylineElement",
+    "SVGRadialGradientElement",
+    "SVGRectangleElement",
+    "SVGScriptElement",
+    "SVGSetElement",
+    "SVGStopElement",
+    "SVGStyleElement",
+    "SVGSwitchElement",
+    "SVGSymbolElement",
+    "SVGTextElement",
+    "SVGTextPathElement",
+    "SVGTextSpanElement",
+    "SVGTitleElement",
+    "SVGUseElement",
+    "SVGViewElement",
 ]
 
 from ..core import OpenElement, ClosedElement, TextNode
@@ -661,3 +724,256 @@ class CanvasElement(OpenElement):
     tag = "canvas"
     render_mode = "inline"
 
+# --- SVG elements ---
+
+class SVGElement(OpenElement):
+    tag = "svg"
+    render_mode = "block"
+
+class SVGAnchorElement(OpenElement):
+    tag = "a"
+    render_mode = "block"
+
+class SVGAnimateElement(OpenElement):
+    tag = "animate"
+    render_mode = "block"
+
+class SVGAnimateMotionElement(OpenElement):
+    tag = "animateMotion"
+    render_mode = "block"
+
+class SVGAnimateTransformElement(OpenElement):
+    tag = "animateTransform"
+    render_mode = "block"
+
+class SVGCircleElement(OpenElement):
+    tag = "circle"
+    render_mode = "block"
+
+class SVGClipPathElement(OpenElement):
+    tag = "clipPath"
+    render_mode = "block"
+
+class SVGDefinitionsElement(OpenElement):
+    tag = "defs"
+    render_mode = "block"
+
+class SVGDescriptionElement(OpenElement):
+    tag = "desc"
+    render_mode = "block"
+
+class SVGEllipseElement(OpenElement):
+    tag = "ellipse"
+    render_mode = "block"
+
+class SVGFilterElement(OpenElement):
+    tag = "filter"
+    render_mode = "block"
+
+class SVGFilterBlendElement(OpenElement):
+    tag = "feBlend"
+    render_mode = "block"
+
+class SVGFilterColorMatrixElement(OpenElement):
+    tag = "feColorMatrix"
+    render_mode = "block"
+
+class SVGFilterComponentTransferElement(OpenElement):
+    tag = "feComponentTransfer"
+    render_mode = "block"
+
+class SVGFilterCompositeElement(OpenElement):
+    tag = "feComposite"
+    render_mode = "block"
+
+class SVGFilterConvolveMatrixElement(OpenElement):
+    tag = "feConvolveMatrix"
+    render_mode = "block"
+
+class SVGFilterDiffuseLightingElement(OpenElement):
+    tag = "feDiffuseLighting"
+    render_mode = "block"
+
+class SVGFilterDisplacementMapElement(OpenElement):
+    tag = "feDisplacementMap"
+    render_mode = "block"
+
+class SVGFilterDistantLightElement(OpenElement):
+    tag = "feDistantLight"
+    render_mode = "block"
+
+class SVGFilterDropShadowElement(OpenElement):
+    tag = "feDropShadow"
+    render_mode = "block"
+
+class SVGFilterFloodElement(OpenElement):
+    tag = "feFlood"
+    render_mode = "block"
+
+class SVGFilterFunctionAlphaElement(OpenElement):
+    tag = "feFuncA"
+    render_mode = "block"
+
+class SVGFilterFunctionBlueElement(OpenElement):
+    tag = "feFuncB"
+    render_mode = "block"
+
+class SVGFilterFunctionGreenElement(OpenElement):
+    tag = "feFuncG"
+    render_mode = "block"
+
+class SVGFilterFunctionRedElement(OpenElement):
+    tag = "feFuncR"
+    render_mode = "block"
+
+class SVGFilterGaussianBlurElement(OpenElement):
+    tag = "feGaussianBlur"
+    render_mode = "block"
+
+class SVGFilterImageElement(OpenElement):
+    tag = "feImage"
+    render_mode = "block"
+
+class SVGFilterMergeElement(OpenElement):
+    tag = "feMerge"
+    render_mode = "block"
+
+class SVGFilterMergeNodeElement(OpenElement):
+    tag = "feMergeNode"
+    render_mode = "block"
+
+class SVGFilterMorphologyElement(OpenElement):
+    tag = "feMorphology"
+    render_mode = "block"
+
+class SVGFilterOffsetElement(OpenElement):
+    tag = "feOffset"
+    render_mode = "block"
+
+class SVGFilterPointLightElement(OpenElement):
+    tag = "fePointLight"
+    render_mode = "block"
+
+class SVGFilterSpecularLightingElement(OpenElement):
+    tag = "feSpecularLighting"
+    render_mode = "block"
+
+class SVGFilterSpotLightElement(OpenElement):
+    tag = "feSpotLight"
+    render_mode = "block"
+
+class SVGFilterTileElement(OpenElement):
+    tag = "feTile"
+    render_mode = "block"
+
+class SVGFilterTurbulenceElement(OpenElement):
+    tag = "feTurbulence"
+    render_mode = "block"
+
+class SVGForeignObjectElement(OpenElement):
+    tag = "foreignObject"
+    render_mode = "block"
+
+class SVGGroupElement(OpenElement):
+    tag = "g"
+    render_mode = "block"
+
+class SVGImageElement(OpenElement):
+    tag = "image"
+    render_mode = "block"
+
+class SVGLineElement(OpenElement):
+    tag = "line"
+    render_mode = "block"
+
+class SVGLinearGradientElement(OpenElement):
+    tag = "linearGradient"
+    render_mode = "block"
+
+class SVGMarkerElement(OpenElement):
+    tag = "marker"
+    render_mode = "block"
+
+class SVGMaskElement(OpenElement):
+    tag = "mask"
+    render_mode = "block"
+
+class SVGMetadataElement(OpenElement):
+    tag = "metadata"
+    render_mode = "block"
+
+class SVGMotionPathElement(OpenElement):
+    tag = "mpath"
+    render_mode = "block"
+
+class SVGPathElement(OpenElement):
+    tag = "path"
+    render_mode = "block"
+
+class SVGPatternElement(OpenElement):
+    tag = "pattern"
+    render_mode = "block"
+
+class SVGPolygonElement(OpenElement):
+    tag = "polygon"
+    render_mode = "block"
+
+class SVGPolylineElement(OpenElement):
+    tag = "polyline"
+    render_mode = "block"
+
+class SVGRadialGradientElement(OpenElement):
+    tag = "radialGradient"
+    render_mode = "block"
+
+class SVGRectangleElement(OpenElement):
+    tag = "rect"
+    render_mode = "block"
+
+class SVGScriptElement(OpenElement):
+    tag = "script"
+    render_mode = "block"
+
+class SVGSetElement(OpenElement):
+    tag = "set"
+    render_mode = "block"
+
+class SVGStopElement(OpenElement):
+    tag = "stop"
+    render_mode = "block"
+
+class SVGStyleElement(OpenElement):
+    tag = "style"
+    render_mode = "block"
+
+class SVGSwitchElement(OpenElement):
+    tag = "switch"
+    render_mode = "block"
+
+class SVGSymbolElement(OpenElement):
+    tag = "symbol"
+    render_mode = "block"
+
+class SVGTextElement(OpenElement):
+    tag = "text"
+    render_mode = "block"
+
+class SVGTextPathElement(OpenElement):
+    tag = "textPath"
+    render_mode = "block"
+
+class SVGTextSpanElement(OpenElement):
+    tag = "tspan"
+    render_mode = "block"
+
+class SVGTitleElement(OpenElement):
+    tag = "title"
+    render_mode = "block"
+
+class SVGUseElement(OpenElement):
+    tag = "use"
+    render_mode = "block"
+
+class SVGViewElement(OpenElement):
+    tag = "view"
+    render_mode = "block"
