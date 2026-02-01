@@ -1,4 +1,5 @@
 import sys
+import copy
 from typing import Any
 if sys.version_info.major == 3 and sys.version_info.minor < 9:
     from typing import Callable, Mapping, Iterable
@@ -10,6 +11,7 @@ from .build_contexts import BuildContext, BUILD_CONTEXT_CONFIG_KEYS
 PAGE_GROUP_CONFIG_DEFAULT_VALUES = {
     "export_root_path"                       : "./ophinode_exported_files",
     "default_layout"                         : None,
+    "preserve_site_definition_across_builds" : False,
     "page_default_file_name"                 : "index.html",
     "page_default_file_name_suffix"          : ".html",
     "auto_write_exported_page_build_files"   : False,
@@ -77,52 +79,6 @@ class PageGroup:
         page_data,
         misc_data,
     ):
-        pages = self._pages.copy()
-        dependencies = self._dependencies.copy()
-
-        pre_page_build_preps = (
-            self._preprocessors_before_page_build_preparation_stage
-        ).copy()
-        post_page_build_preps = (
-            self._postprocessors_after_page_build_preparation_stage
-        ).copy()
-        pre_page_builds = (
-            self._preprocessors_before_page_build_stage
-        ).copy()
-        post_page_builds = (
-            self._postprocessors_after_page_build_stage
-        ).copy()
-        pre_page_expand_preps = (
-            self._preprocessors_before_page_expansion_preparation_stage
-        ).copy()
-        post_page_expand_preps = (
-            self._postprocessors_after_page_expansion_preparation_stage
-        ).copy()
-        pre_page_expands = (
-            self._preprocessors_before_page_expansion_stage
-        ).copy()
-        post_page_expands = (
-            self._postprocessors_after_page_expansion_stage
-        ).copy()
-        pre_page_renders = (
-            self._preprocessors_before_page_rendering_stage
-        ).copy()
-        post_page_renders = (
-            self._postprocessors_after_page_rendering_stage
-        ).copy()
-        pre_page_exports = (
-            self._preprocessors_before_page_exportation_stage
-        ).copy()
-        post_page_exports = (
-            self._postprocessors_after_page_exportation_stage
-        ).copy()
-        pre_page_build_finalizations = (
-            self._preprocessors_before_page_build_finalization_stage
-        ).copy()
-        post_page_build_finalizations = (
-            self._postprocessors_after_page_build_finalization_stage
-        ).copy()
-
         cfg = {}
         for k in BUILD_CONTEXT_CONFIG_KEYS:
             if k in self._config:
@@ -132,6 +88,99 @@ class PageGroup:
             else:
                 cfg[k] = self.get_config_value(k)
 
+        if self.get_config_value("preserve_site_definition_across_builds"):
+            cfg_to_pass = copy.deepcopy(cfg)
+            pages = copy.deepcopy(self._pages)
+            dependencies = copy.deepcopy(self._dependencies)
+            pre_page_build_preps = copy.deepcopy(
+                self._preprocessors_before_page_build_preparation_stage
+            )
+            post_page_build_preps = copy.deepcopy(
+                self._postprocessors_after_page_build_preparation_stage
+            )
+            pre_page_builds = copy.deepcopy(
+                self._preprocessors_before_page_build_stage
+            )
+            post_page_builds = copy.deepcopy(
+                self._postprocessors_after_page_build_stage
+            )
+            pre_page_expand_preps = copy.deepcopy(
+                self._preprocessors_before_page_expansion_preparation_stage
+            )
+            post_page_expand_preps = copy.deepcopy(
+                self._postprocessors_after_page_expansion_preparation_stage
+            )
+            pre_page_expands = copy.deepcopy(
+                self._preprocessors_before_page_expansion_stage
+            )
+            post_page_expands = copy.deepcopy(
+                self._postprocessors_after_page_expansion_stage
+            )
+            pre_page_renders = copy.deepcopy(
+                self._preprocessors_before_page_rendering_stage
+            )
+            post_page_renders = copy.deepcopy(
+                self._postprocessors_after_page_rendering_stage
+            )
+            pre_page_exports = copy.deepcopy(
+                self._preprocessors_before_page_exportation_stage
+            )
+            post_page_exports = copy.deepcopy(
+                self._postprocessors_after_page_exportation_stage
+            )
+            pre_page_build_finalizations = copy.deepcopy(
+                self._preprocessors_before_page_build_finalization_stage
+            )
+            post_page_build_finalizations = copy.deepcopy(
+                self._postprocessors_after_page_build_finalization_stage
+            )
+        else:
+            cfg_to_pass = cfg
+            pages = self._pages.copy()
+            dependencies = self._dependencies.copy()
+            pre_page_build_preps = (
+                self._preprocessors_before_page_build_preparation_stage
+            ).copy()
+            post_page_build_preps = (
+                self._postprocessors_after_page_build_preparation_stage
+            ).copy()
+            pre_page_builds = (
+                self._preprocessors_before_page_build_stage
+            ).copy()
+            post_page_builds = (
+                self._postprocessors_after_page_build_stage
+            ).copy()
+            pre_page_expand_preps = (
+                self._preprocessors_before_page_expansion_preparation_stage
+            ).copy()
+            post_page_expand_preps = (
+                self._postprocessors_after_page_expansion_preparation_stage
+            ).copy()
+            pre_page_expands = (
+                self._preprocessors_before_page_expansion_stage
+            ).copy()
+            post_page_expands = (
+                self._postprocessors_after_page_expansion_stage
+            ).copy()
+            pre_page_renders = (
+                self._preprocessors_before_page_rendering_stage
+            ).copy()
+            post_page_renders = (
+                self._postprocessors_after_page_rendering_stage
+            ).copy()
+            pre_page_exports = (
+                self._preprocessors_before_page_exportation_stage
+            ).copy()
+            post_page_exports = (
+                self._postprocessors_after_page_exportation_stage
+            ).copy()
+            pre_page_build_finalizations = (
+                self._preprocessors_before_page_build_finalization_stage
+            ).copy()
+            post_page_build_finalizations = (
+                self._postprocessors_after_page_build_finalization_stage
+            ).copy()
+
         return BuildContext(
             self._name,
             pages,
@@ -140,7 +189,7 @@ class PageGroup:
             page_data,
             misc_data,
             self._page_group_data.copy(),
-            cfg,
+            cfg_to_pass,
             {
                 "pre_prepare_page_build": pre_page_build_preps,
                 "post_prepare_page_build": post_page_build_preps,

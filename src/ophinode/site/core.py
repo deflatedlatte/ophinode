@@ -406,7 +406,13 @@ class Site:
         return self._page_group[page_group_name].page_group_data
 
     def create_root_build_context(self) -> RootBuildContext:
+        build_config = {}
+        for k in ROOT_BUILD_CONTEXT_CONFIG_KEYS:
+            if k in self._config:
+                build_config[k] = self._config[k]
+
         if self.get_config_value("preserve_site_definition_across_builds"):
+            build_config_to_pass = copy.deepcopy(build_config)
             page_groups = copy.deepcopy(self._page_groups)
             pre_preparation = copy.deepcopy(
                 self._preprocessors_before_site_build_preparation_stage
@@ -424,6 +430,7 @@ class Site:
             page_data = copy.deepcopy(self._page_data)
             misc_data = copy.deepcopy(self._misc_data)
         else:
+            build_config_to_pass = build_config
             page_groups = self._page_groups.copy()
             pre_preparation = (
                 self._preprocessors_before_site_build_preparation_stage
@@ -441,14 +448,9 @@ class Site:
             page_data = self._page_data.copy()
             misc_data = self._misc_data.copy()
 
-        build_config = {}
-        for k in ROOT_BUILD_CONTEXT_CONFIG_KEYS:
-            if k in self._config:
-                build_config[k] = self._config[k]
-
         return RootBuildContext(
             page_groups,
-            build_config,
+            build_config_to_pass,
             {
                 "pre_prepare_site_build": pre_preparation,
                 "post_prepare_site_build": post_preparation,
