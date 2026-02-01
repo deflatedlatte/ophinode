@@ -37,6 +37,7 @@ class PageGroup:
         self._pages = []
         self._dependency_group_of_pages = {}    # page path -> dependency group name
         self._dependencies = {}
+        self._page_group_data = {}
 
         self._dependencies_in_page_build_preparation_stage = {}
         self._dependencies_in_page_build_stage = {}
@@ -65,11 +66,16 @@ class PageGroup:
     def name(self):
         return self._name
 
+    @property
+    def page_group_data(self):
+        return self._page_group_data
+
     def create_build_context(
         self,
         build_config,
         site_data,
         page_data,
+        misc_data,
     ):
         pages = self._pages.copy()
         dependencies = self._dependencies.copy()
@@ -132,6 +138,8 @@ class PageGroup:
             dependencies,
             site_data,
             page_data,
+            misc_data,
+            self._page_group_data.copy(),
             cfg,
             {
                 "pre_prepare_page_build": pre_page_build_preps,

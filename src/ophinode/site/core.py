@@ -70,6 +70,10 @@ class Site:
             ],
             None
         ] = None,
+        site_data: Union[Mapping[str, Any], None] = None,
+        page_data: Union[Mapping[str, Mapping[str, Any]], None] = None,
+        page_group_data: Union[Mapping[str, Mapping[str, Any]], None] = None,
+        misc_data: Union[Mapping[str, Mapping[str, Any]], None] = None,
     ):
         self._config = {}
         if config is not None:
@@ -78,6 +82,7 @@ class Site:
         self._pages_dict = {}
         self._pages = []
         self._page_groups = {}
+        self._page_data = {}
         if pages is not None:
             if not isinstance(pages, Iterable):
                 raise TypeError("pages must be an iterable")
@@ -185,6 +190,36 @@ class Site:
                     )
                 self.add_processor(stage, processor, page_group)
 
+        self._site_data = {}
+        self._misc_data = {}
+        if site_data is not None:
+            for k, v in site_data.items():
+                self._site_data[k] = v
+        if page_data is not None:
+            for k, v in page_data.items():
+                if k not in self._page_data:
+                    raise ValueError(
+                        "page data provided for a non-existent page: "
+                        "{}".format(k)
+                    )
+                pd = self._page_data[k]
+                for k2, v2 in v.items():
+                    pd[k2] = v2
+        if page_group_data is not None:
+            for k, v in page_group_data.items():
+                if k not in self._page_groups:
+                    raise ValueError(
+                        "page group data provided for a non-existent page "
+                        "group: {}".format(k)
+                    )
+                pgrp = self._page_groups[k]
+                pgrp_d = pgrp.page_group_data
+                for k2, v2 in v.items():
+                    pgrp_d[k2] = v2
+        if misc_data is not None:
+            for k, v in misc_data.items():
+                self._misc_data[k] = v
+
     def get_config_value(self, key: str):
         if not isinstance(key, str):
             raise TypeError(
@@ -266,6 +301,7 @@ class Site:
 
         self._pages_dict[path] = page_definition
         self._pages.append(page_definition)
+        self._page_data[path] = {}
 
         return page_definition
 
@@ -343,6 +379,32 @@ class Site:
         else:
             raise ValueError("invalid processor stage: '{}'".format(stage))
 
+    @property
+    def site_data(self):
+        return self._site_data
+
+    @property
+    def misc_data(self):
+        return self._misc_data
+
+    def get_site_data(self):
+        return self._site_data
+
+    def get_page_data(self, page_path: str):
+        if not isinstance(page_path, str):
+            raise TypeError("path to a page must be a str")
+        return self._page_data[page_path]
+
+    def get_misc_data(self):
+        return self._misc_data
+
+    def get_page_group_data(self, page_group_name: Union[str, None] = None):
+        if page_group_name is None:
+            page_group_name = "default"
+        if not isinstance(page_group_name, str):
+            raise TypeError("page group name must be a str")
+        return self._page_group[page_group_name].page_group_data
+
     def create_root_build_context(self) -> RootBuildContext:
         if self.get_config_value("preserve_site_definition_across_builds"):
             page_groups = copy.deepcopy(self._page_groups)
@@ -358,6 +420,9 @@ class Site:
             post_finalization = copy.deepcopy(
                 self._postprocessors_after_site_build_finalization_stage
             )
+            site_data = copy.deepcopy(self._site_data)
+            page_data = copy.deepcopy(self._page_data)
+            misc_data = copy.deepcopy(self._misc_data)
         else:
             page_groups = self._page_groups.copy()
             pre_preparation = (
@@ -372,6 +437,9 @@ class Site:
             post_finalization = (
                 self._postprocessors_after_site_build_finalization_stage
             ).copy()
+            site_data = self._site_data.copy()
+            page_data = self._page_data.copy()
+            misc_data = self._misc_data.copy()
 
         build_config = {}
         for k in ROOT_BUILD_CONTEXT_CONFIG_KEYS:
@@ -387,6 +455,9 @@ class Site:
                 "pre_finalize_site_build": pre_finalization,
                 "post_finalize_site_build": post_finalization,
             },
+            site_data,
+            page_data,
+            misc_data,
         )
 
     def build_site(self):

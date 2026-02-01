@@ -83,6 +83,8 @@ class BuildContext:
         dependencies: dict,
         site_data: dict,
         page_data: dict,
+        misc_data: dict,
+        page_group_data: dict,
         build_config: dict,
         processors: dict,
     ):
@@ -104,7 +106,8 @@ class BuildContext:
 
         self._site_data = site_data
         self._page_data = page_data
-        self._misc_data = {}
+        self._misc_data = misc_data
+        self._page_group_data = page_group_data
         self._built_pages = {}
         self._expanded_pages = {}
         self._rendered_pages = {}
@@ -523,6 +526,30 @@ class BuildContext:
         return self._misc_data
 
     @property
+    def page_group_data(self):
+        return self._page_group_data
+
+    def get_site_data(self):
+        return self._site_data
+
+    def get_page_data(self, page_path: Union[str, None] = None):
+        if page_path is None:
+            if self._current_page_path is None:
+                raise NoCurrentPageError(
+                    "no page is currently being built in this context"
+                )
+            return self._page_data[self._current_page_path]
+        if not isinstance(page_path, str):
+            raise TypeError("path to a page must be a str")
+        return self._page_data[page_path]
+
+    def get_misc_data(self):
+        return self._misc_data
+
+    def get_page_group_data(self):
+        return self._page_group_data
+
+    @property
     def build_phase(self):
         return self._build_phase
 
@@ -603,15 +630,6 @@ class BuildContext:
                     continue
                 raise ValueError("unknown config key: {}".format(k))
             self._config[k] = v
-
-    def get_page_data(self, page_path: Union[str, None] = None):
-        if page_path is None:
-            if self._current_page_path is None:
-                raise NoCurrentPageError(
-                    "no page is currently being built in this context"
-                )
-            return self._page_data[self._current_page_path]
-        return self._page_data[page_path]
 
     def get_page(self, page_path: Union[str, None] = None):
         if page_path is None:
@@ -730,6 +748,9 @@ class RootBuildContext:
         page_groups: dict,
         build_config: dict,
         processors: dict,
+        site_data: dict,
+        page_data: dict,
+        misc_data: dict,
     ):
         self._build_phase = BuildPhase.INIT
 
@@ -740,9 +761,9 @@ class RootBuildContext:
         self._page_groups = page_groups
         self._subcontexts = []
         self._page_build_results = {}
-        self._site_data = {}
-        self._page_data = {}
-        self._misc_data = {}
+        self._site_data = site_data
+        self._page_data = page_data
+        self._misc_data = misc_data
         self._built_pages = {}
         self._expanded_pages = {}
         self._rendered_pages = {}
@@ -914,6 +935,7 @@ class RootBuildContext:
             build_config,
             self._site_data,
             self._page_data,
+            self._misc_data,
         )
         self._subcontexts.append(subcontext)
 
@@ -951,12 +973,31 @@ class RootBuildContext:
             raise TypeError("phase must be a BuildPhase, not {}".format(phase.__class__.__name__))
         self._build_phase = phase
 
-    def get_page_data(self, key: str, page_path: Union[str, None] = None):
-        """Get a local data whose name is 'key' from Page 'page_path'.
-        """
-        page_data = self._page_data[page_path]
-        data = page_data[key]
-        return data
+    @property
+    def site_data(self):
+        return self._site_data
+
+    @property
+    def misc_data(self):
+        return self._misc_data
+
+    def get_site_data(self):
+        return self._site_data
+
+    def get_page_data(self, page_path: str):
+        if not isinstance(page_path, str):
+            raise TypeError("path to a page must be a str")
+        return self._page_data[page_path]
+
+    def get_misc_data(self):
+        return self._misc_data
+
+    def get_page_group_data(self, page_group_name: Union[str, None] = None):
+        if page_group_name is None:
+            page_group_name = "default"
+        if not isinstance(page_group_name, str):
+            raise TypeError("page group name must be a str")
+        return self._page_group[page_group_name].page_group_data
 
     def get_page(self, page_path: str):
         return self._site.get_page(page_path)
