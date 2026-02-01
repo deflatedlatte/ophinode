@@ -410,14 +410,19 @@ __all__ = [
     "View",
 ]
 
-from .site import Site, render_page, render_nodes, render_html
+from .site import (
+    Site,
+    Page,
+    Layout,
+    render_page,
+    render_nodes,
+    render_html,
+)
 from .nodes.base import (
     ClosedRenderable,
     OpenRenderable,
     Expandable,
     Preparable,
-    Page,
-    Layout,
 )
 from .nodes.html import (
     HTML5Page,

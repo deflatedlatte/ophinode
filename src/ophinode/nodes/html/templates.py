@@ -1,4 +1,5 @@
-from ..base import Page, Layout
+from ophinode.site.page import Page
+from ophinode.site.layout import Layout
 from .core import HTML5Doctype
 from .elements import Html, Head, Body
 

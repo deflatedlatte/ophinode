@@ -8,7 +8,8 @@ else:
     from collections.abc import Iterable, Callable, Mapping, Sequence
     Tuple = tuple
 
-from ophinode.nodes.base import Page, Layout
+from .page import Page
+from .layout import Layout
 from ophinode.nodes.html.core import HTML5Doctype
 from ophinode.nodes.html.elements.fullname import (
     HtmlElement,

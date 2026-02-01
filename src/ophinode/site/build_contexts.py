@@ -11,12 +11,14 @@ import multiprocessing
 from typing import Any, Union
 from enum import Enum
 
+from .page import Page
+from .layout import Layout
 from ophinode.exceptions.site import (
     RootPathUndefinedError,
     RootPathIsNotADirectoryError,
     NoCurrentPageError,
 )
-from ophinode.nodes.base import Page, Layout, Preparable, Expandable
+from ophinode.nodes.base import Preparable, Expandable
 from ophinode.nodes.html import TextNode, HTML5Layout
 from ophinode.rendering.render_node import RenderNode
 
