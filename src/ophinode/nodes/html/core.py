@@ -1,3 +1,5 @@
+from typing import Union
+
 from ..base import (
     ClosedRenderable,
     OpenRenderable,
@@ -14,12 +16,16 @@ class TextNode(Node, ClosedRenderable):
         self,
         text_content: str,
         *,
-        escape_ampersands: bool = None,
-        escape_tag_delimiters: bool = None,
+        escape_ampersands: Union[bool, None] = None,
+        escape_tag_delimiters: Union[bool, None] = None,
+        prevent_auto_newline_before_me: Union[bool, None] = None,
+        prevent_auto_newline_after_me: Union[bool, None] = None,
     ):
         self._text_content = text_content
         self._escape_ampersands = escape_ampersands
         self._escape_tag_delimiters = escape_tag_delimiters
+        self._prevent_auto_newline_before_me = prevent_auto_newline_before_me
+        self._prevent_auto_newline_after_me = prevent_auto_newline_after_me
 
     def render(self, context: "ophinode.site.BuildContext"):
         text_content = self._text_content
@@ -52,27 +58,59 @@ class TextNode(Node, ClosedRenderable):
 
     @property
     def prevent_auto_newline_before_me(self):
+        if self._prevent_auto_newline_before_me is not None:
+            return self._prevent_auto_newline_before_me
         return True
 
     @property
     def prevent_auto_newline_after_me(self):
+        if self._prevent_auto_newline_after_me is not None:
+            return self._prevent_auto_newline_after_me
         return False
 
 class HTML5Doctype(Node, ClosedRenderable):
+    def __init__(
+        self,
+        *,
+        prevent_auto_newline_before_me: Union[bool, None] = None,
+        prevent_auto_newline_after_me: Union[bool, None] = None,
+    ):
+        self._prevent_auto_newline_before_me = prevent_auto_newline_before_me
+        self._prevent_auto_newline_after_me = prevent_auto_newline_after_me
+
     def render(self, context: "ophinode.site.BuildContext"):
         return "<!doctype html>"
 
     @property
     def prevent_auto_newline_before_me(self):
+        if self._prevent_auto_newline_before_me is not None:
+            return self._prevent_auto_newline_before_me
         return False
 
     @property
     def prevent_auto_newline_after_me(self):
+        if self._prevent_auto_newline_after_me is not None:
+            return self._prevent_auto_newline_after_me
         return False
 
 class CDATASection(Node, OpenRenderable, Expandable, Preparable):
-    def __init__(self, *args):
+    def __init__(
+        self,
+        *args,
+        auto_newline_for_children: Union[bool, None] = None,
+        pad_newline_after_opening: Union[bool, None] = None,
+        pad_newline_before_closing: Union[bool, None] = None,
+        prevent_auto_newline_before_me: Union[bool, None] = None,
+        prevent_auto_newline_after_me: Union[bool, None] = None,
+        auto_indent_for_children: Union[bool, None] = None,
+    ):
         self._children = list(args)
+        self._auto_newline_for_children = auto_newline_for_children
+        self._pad_newline_after_opening = pad_newline_after_opening
+        self._pad_newline_before_closing = pad_newline_before_closing
+        self._prevent_auto_newline_before_me = prevent_auto_newline_before_me
+        self._prevent_auto_newline_after_me = prevent_auto_newline_after_me
+        self._auto_indent_for_children = auto_indent_for_children
 
     def prepare(self, context: "ophinode.site.BuildContext"):
         for c in self._children:
@@ -94,31 +132,58 @@ class CDATASection(Node, OpenRenderable, Expandable, Preparable):
 
     @property
     def auto_newline_for_children(self):
+        if self._auto_newline_for_children is not None:
+            return self._auto_newline_for_children
         return False
 
     @property
     def pad_newline_after_opening(self):
+        if self._pad_newline_after_opening is not None:
+            return self._pad_newline_after_opening
         return False
 
     @property
     def pad_newline_before_closing(self):
+        if self._pad_newline_before_closing is not None:
+            return self._pad_newline_before_closing
         return False
 
     @property
     def prevent_auto_newline_before_me(self):
+        if self._prevent_auto_newline_before_me is not None:
+            return self._prevent_auto_newline_before_me
         return True
 
     @property
     def prevent_auto_newline_after_me(self):
+        if self._prevent_auto_newline_after_me is not None:
+            return self._prevent_auto_newline_after_me
         return False
 
     @property
     def auto_indent_for_children(self):
+        if self._auto_indent_for_children is not None:
+            return self._auto_indent_for_children
         return False
 
 class Comment(Node, OpenRenderable, Expandable, Preparable):
-    def __init__(self, *args):
+    def __init__(
+        self,
+        *args,
+        auto_newline_for_children: Union[bool, None] = None,
+        pad_newline_after_opening: Union[bool, None] = None,
+        pad_newline_before_closing: Union[bool, None] = None,
+        prevent_auto_newline_before_me: Union[bool, None] = None,
+        prevent_auto_newline_after_me: Union[bool, None] = None,
+        auto_indent_for_children: Union[bool, None] = None,
+    ):
         self._children = list(args)
+        self._auto_newline_for_children = auto_newline_for_children
+        self._pad_newline_after_opening = pad_newline_after_opening
+        self._pad_newline_before_closing = pad_newline_before_closing
+        self._prevent_auto_newline_before_me = prevent_auto_newline_before_me
+        self._prevent_auto_newline_after_me = prevent_auto_newline_after_me
+        self._auto_indent_for_children = auto_indent_for_children
 
     def prepare(self, context: "ophinode.site.BuildContext"):
         for c in self._children:
@@ -136,26 +201,38 @@ class Comment(Node, OpenRenderable, Expandable, Preparable):
 
     @property
     def auto_newline_for_children(self):
+        if self._auto_newline_for_children is not None:
+            return self._auto_newline_for_children
         return False
 
     @property
     def pad_newline_after_opening(self):
+        if self._pad_newline_after_opening is not None:
+            return self._pad_newline_after_opening
         return False
 
     @property
     def pad_newline_before_closing(self):
+        if self._pad_newline_before_closing is not None:
+            return self._pad_newline_before_closing
         return False
 
     @property
     def prevent_auto_newline_before_me(self):
+        if self._prevent_auto_newline_before_me is not None:
+            return self._prevent_auto_newline_before_me
         return True
 
     @property
     def prevent_auto_newline_after_me(self):
+        if self._prevent_auto_newline_after_me is not None:
+            return self._prevent_auto_newline_after_me
         return False
 
     @property
     def auto_indent_for_children(self):
+        if self._auto_indent_for_children is not None:
+            return self._auto_indent_for_children
         return False
 
 class Element(Node):
@@ -234,6 +311,12 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
         accept_charset = None,
         escape_ampersands = None,
         escape_tag_delimiters = None,
+        auto_newline_for_children = None,
+        pad_newline_after_opening = None,
+        pad_newline_before_closing = None,
+        prevent_auto_newline_before_me = None,
+        prevent_auto_newline_after_me = None,
+        auto_indent_for_children = None,
         children = None,
         attributes = None,
         **kwargs
@@ -277,6 +360,12 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
             self._attributes["accept-charset"] = accept_charset
         self._escape_ampersands = escape_ampersands
         self._escape_tag_delimiters = escape_tag_delimiters
+        self._auto_newline_for_children = auto_newline_for_children
+        self._pad_newline_after_opening = pad_newline_after_opening
+        self._pad_newline_before_closing = pad_newline_before_closing
+        self._prevent_auto_newline_before_me = prevent_auto_newline_before_me
+        self._prevent_auto_newline_after_me = prevent_auto_newline_after_me
+        self._auto_indent_for_children = auto_indent_for_children
 
     def prepare(self, context: "ophinode.site.BuildContext"):
         for c in self._children:
@@ -312,26 +401,38 @@ class OpenElement(Element, OpenRenderable, Expandable, Preparable):
 
     @property
     def auto_newline_for_children(self):
+        if self._auto_newline_for_children is not None:
+            return self._auto_newline_for_children
         return self.render_mode == "block"
 
     @property
     def pad_newline_after_opening(self):
+        if self._pad_newline_after_opening is not None:
+            return self._pad_newline_after_opening
         return self.render_mode == "block"
 
     @property
     def pad_newline_before_closing(self):
+        if self._pad_newline_before_closing is not None:
+            return self._pad_newline_before_closing
         return self.render_mode == "block"
 
     @property
     def prevent_auto_newline_before_me(self):
+        if self._prevent_auto_newline_before_me is not None:
+            return self._prevent_auto_newline_before_me
         return self.render_mode == "inline" or self.render_mode == "inline-preformatted"
 
     @property
     def prevent_auto_newline_after_me(self):
+        if self._prevent_auto_newline_after_me is not None:
+            return self._prevent_auto_newline_after_me
         return False
 
     @property
     def auto_indent_for_children(self):
+        if self._auto_indent_for_children is not None:
+            return self._auto_indent_for_children
         return self.render_mode == "inline" or self.render_mode == "block"
 
 class ClosedElement(Element, ClosedRenderable):
@@ -352,6 +453,8 @@ class ClosedElement(Element, ClosedRenderable):
         accept_charset = None,
         escape_ampersands = None,
         escape_tag_delimiters = None,
+        prevent_auto_newline_before_me = None,
+        prevent_auto_newline_after_me = None,
         attributes = None,
         **kwargs
     ):
@@ -393,6 +496,8 @@ class ClosedElement(Element, ClosedRenderable):
             self._attributes["accept-charset"] = accept_charset
         self._escape_ampersands = escape_ampersands
         self._escape_tag_delimiters = escape_tag_delimiters
+        self._prevent_auto_newline_before_me = prevent_auto_newline_before_me
+        self._prevent_auto_newline_after_me = prevent_auto_newline_after_me
 
     def render(self, context: "ophinode.site.BuildContext"):
         rendered_attributes = self.render_attributes(context)
@@ -402,9 +507,13 @@ class ClosedElement(Element, ClosedRenderable):
 
     @property
     def prevent_auto_newline_before_me(self):
+        if self._prevent_auto_newline_before_me is not None:
+            return self._prevent_auto_newline_before_me
         return self.render_mode != "block"
 
     @property
     def prevent_auto_newline_after_me(self):
+        if self._prevent_auto_newline_after_me is not None:
+            return self._prevent_auto_newline_after_me
         return False
 
