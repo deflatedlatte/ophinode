@@ -5,6 +5,26 @@ a simple and flexible library for creating websites.
 This project is currently in the initial development stage, and the APIs may
 change at any time.
 
+## Testing
+
+Run the smoke tests against the source tree with:
+
+```sh
+make test
+```
+
+Run the wheel compatibility suite against Python 3.6 through 3.14 with Docker
+Compose:
+
+```sh
+make test-docker
+```
+
+The Docker suite builds one wheel with a modern Python environment, installs
+that wheel into each target environment, and runs the tests against the
+installed package. The legacy environments do not execute the project's build
+backend.
+
 ## Example programs
 
 You can also get these example programs by running

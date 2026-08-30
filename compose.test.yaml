@@ -1,0 +1,64 @@
+services:
+  py36:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.test
+      args:
+        PYTHON_IMAGE: python:3.6.15-slim-buster
+
+  py37:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.test
+      args:
+        PYTHON_IMAGE: python:3.7-slim-buster
+
+  py38:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.test
+      args:
+        PYTHON_IMAGE: python:3.8-slim
+
+  py39:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.test
+      args:
+        PYTHON_IMAGE: python:3.9-slim
+
+  py310:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.test
+      args:
+        PYTHON_IMAGE: python:3.10-slim
+
+  py311:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.test
+      args:
+        PYTHON_IMAGE: python:3.11-slim
+
+  py312:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.test
+      args:
+        PYTHON_IMAGE: python:3.12-slim
+
+  py313:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.test
+      args:
+        PYTHON_IMAGE: python:3.13-slim
+
+  py314:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.test
+      args:
+        PYTHON_IMAGE: python:3.14-slim

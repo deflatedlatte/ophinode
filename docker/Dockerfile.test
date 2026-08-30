@@ -1,0 +1,28 @@
+# syntax=docker/dockerfile:1
+
+ARG PYTHON_IMAGE=python:3.13-slim
+
+FROM python:3.13-slim AS builder
+
+WORKDIR /project
+
+COPY pyproject.toml README.md LICENSE ./
+COPY src ./src
+
+RUN python -m pip install --no-cache-dir build \
+    && python -m build --wheel --outdir /wheel
+
+
+ARG PYTHON_IMAGE
+FROM ${PYTHON_IMAGE} AS tester
+
+WORKDIR /tests
+
+COPY --from=builder /wheel /wheel
+COPY tests /tests
+
+# Installing only the built wheel is intentional. In particular, Python 3.6
+# must never try to execute the modern Hatchling build backend.
+RUN python -m pip install --no-cache-dir --no-deps /wheel/*.whl
+
+CMD ["python", "-m", "unittest", "discover", "-s", "/tests", "-v"]

@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+
+script_directory=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+project_root=$(dirname "$script_directory")
+cd "$project_root"
+
+compose_file="compose.test.yaml"
+
+for environment in \
+    py36 \
+    py37 \
+    py38 \
+    py39 \
+    py310 \
+    py311 \
+    py312 \
+    py313 \
+    py314
+do
+    echo "Testing ${environment}"
+    docker compose \
+        -f "${compose_file}" \
+        run --build --rm "${environment}"
+done

@@ -1,0 +1,6 @@
+.git
+dist
+docs
+*.egg-info
+**/__pycache__
+**/*.py[cod]
