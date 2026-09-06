@@ -72,6 +72,18 @@ class PageGroup:
     def page_group_data(self):
         return self._page_group_data
 
+    def get_page(self, path: str):
+        return self._pages_dict[path]
+
+    def get_pages(self):
+        return self._pages.copy()
+
+    def get_page_paths(self):
+        return [x.path for x in self._pages]
+
+    def has_page(self, path: str):
+        return path in self._pages_dict
+
     def create_build_context(
         self,
         build_config,

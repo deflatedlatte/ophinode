@@ -964,9 +964,6 @@ class RootBuildContext:
                 raise ValueError("unknown config key: {}".format(k))
             self._config[k] = v
 
-    def get_site(self):
-        return self._site
-
     def get_build_phase(self) -> BuildPhase:
         return self._build_phase
 
@@ -999,19 +996,31 @@ class RootBuildContext:
             page_group_name = "default"
         if not isinstance(page_group_name, str):
             raise TypeError("page group name must be a str")
-        return self._page_group[page_group_name].page_group_data
+        return self._page_groups[page_group_name].page_group_data
 
     def get_page(self, page_path: str):
-        return self._site.get_page(page_path)
+        for page_group in self._page_groups.values():
+            if page_group.has_page(page_path):
+                return page_group.get_page(page_path)
+        raise KeyError(page_path)
 
     def get_pages(self):
-        return self._site.get_pages()
+        pages = []
+        for page_group in self._page_groups.values():
+            pages.extend(page_group.get_pages())
+        return pages
 
     def get_page_paths(self):
-        return self._site.get_page_paths()
+        paths = []
+        for page_group in self._page_groups.values():
+            paths.extend(page_group.get_page_paths())
+        return paths
 
     def has_page(self, page_path: str):
-        return self._site.has_page(page_path)
+        return any(
+            page_group.has_page(page_path)
+            for page_group in self._page_groups.values()
+        )
 
     def set_built_page(self, page_path: str, built_page: Any):
         self._built_pages[page_path] = built_page

@@ -404,7 +404,7 @@ class Site:
             page_group_name = "default"
         if not isinstance(page_group_name, str):
             raise TypeError("page group name must be a str")
-        return self._page_group[page_group_name].page_group_data
+        return self._page_groups[page_group_name].page_group_data
 
     def create_root_build_context(self) -> RootBuildContext:
         build_config = {}
