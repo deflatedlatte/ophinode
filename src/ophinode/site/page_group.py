@@ -7,27 +7,14 @@ else:
     from collections.abc import Callable, Mapping, Iterable
 
 from .build_contexts import BuildContext, BUILD_CONTEXT_CONFIG_KEYS
+from .config import (
+    PRESERVE_CONFIG_DEFAULT_VALUES,
+    PAGE_BUILD_CONFIG_DEFAULT_VALUES,
+)
 
 PAGE_GROUP_CONFIG_DEFAULT_VALUES = {
-    "export_root_path"                       : "./ophinode_exported_files",
-    "default_layout"                         : None,
-    "preserve_site_definition_across_builds" : False,
-    "page_default_file_name"                 : "index.html",
-    "page_default_file_name_suffix"          : ".html",
-    "auto_write_exported_page_build_files"   : False,
-    "return_site_data_after_page_build"      : False,
-    "return_page_data_after_page_build"      : False,
-    "return_misc_data_after_page_build"      : True,
-    "return_built_pages_after_page_build"    : False,
-    "return_expanded_pages_after_page_build" : False,
-    "return_rendered_pages_after_page_build" : False,
-    "return_exported_files_after_page_build" : True,
-    "html_default_escape_ampersands"         : False,
-    "html_default_escape_tag_delimiters"     : True,
-    "disable_auto_newline_when_rendering"    : False,
-    "disable_auto_indent_when_rendering"     : False,
-    "auto_indent_string_for_top_level"       : "  ",
-    "append_newline_to_render_result"        : False,
+    **PRESERVE_CONFIG_DEFAULT_VALUES,
+    **PAGE_BUILD_CONFIG_DEFAULT_VALUES,
 }
 PAGE_GROUP_CONFIG_KEYS = set(PAGE_GROUP_CONFIG_DEFAULT_VALUES)
 

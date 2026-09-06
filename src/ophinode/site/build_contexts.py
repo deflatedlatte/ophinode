@@ -21,6 +21,10 @@ from ophinode.exceptions.site import (
 from ophinode.nodes.base import Preparable, Expandable
 from ophinode.nodes.html import TextNode, HTML5Layout
 from ophinode.rendering.render_node import RenderNode
+from .config import (
+    ORCHESTRATION_CONFIG_DEFAULT_VALUES,
+    PAGE_BUILD_CONFIG_DEFAULT_VALUES,
+)
 
 class _StackDelimiter:
     pass
@@ -56,24 +60,7 @@ class BuildPhase(Enum):
     POST_FINALIZE_SITE_BUILD    = 27
 
 BUILD_CONTEXT_CONFIG_DEFAULT_VALUES = {
-    "export_root_path"                       : "./ophinode_exported_files",
-    "default_layout"                         : None,
-    "page_default_file_name"                 : "index.html",
-    "page_default_file_name_suffix"          : ".html",
-    "auto_write_exported_page_build_files"   : False,
-    "return_site_data_after_page_build"      : False,
-    "return_page_data_after_page_build"      : False,
-    "return_misc_data_after_page_build"      : True,
-    "return_built_pages_after_page_build"    : False,
-    "return_expanded_pages_after_page_build" : False,
-    "return_rendered_pages_after_page_build" : False,
-    "return_exported_files_after_page_build" : True,
-    "html_default_escape_ampersands"         : False,
-    "html_default_escape_tag_delimiters"     : True,
-    "disable_auto_newline_when_rendering"    : False,
-    "disable_auto_indent_when_rendering"     : False,
-    "auto_indent_string_for_top_level"       : "  ",
-    "append_newline_to_render_result"        : False,
+    **PAGE_BUILD_CONFIG_DEFAULT_VALUES,
 }
 BUILD_CONTEXT_CONFIG_KEYS = set(BUILD_CONTEXT_CONFIG_DEFAULT_VALUES)
 
@@ -713,29 +700,8 @@ class BuildContext:
         return export_path in self._exported_files
 
 ROOT_BUILD_CONTEXT_CONFIG_DEFAULT_VALUES = {
-    "export_root_path"                       : "./ophinode_exported_files",
-    "default_layout"                         : None,
-    "build_strategy"                         : "sync",
-    "parallel_build_workers"                 : os.cpu_count(),
-    "parallel_build_chunksize"               : 1,
-    "page_default_file_name"                 : "index.html",
-    "page_default_file_name_suffix"          : ".html",
-    "auto_write_exported_page_build_files"   : False,
-    "auto_write_exported_site_build_files"   : True,
-    "return_site_data_after_page_build"      : False,
-    "return_page_data_after_page_build"      : False,
-    "return_misc_data_after_page_build"      : True,
-    "return_built_pages_after_page_build"    : False,
-    "return_expanded_pages_after_page_build" : False,
-    "return_rendered_pages_after_page_build" : False,
-    "return_exported_files_after_page_build" : True,
-    "gather_and_merge_page_build_results"    : True,
-    "html_default_escape_ampersands"         : False,
-    "html_default_escape_tag_delimiters"     : True,
-    "disable_auto_newline_when_rendering"    : False,
-    "disable_auto_indent_when_rendering"     : False,
-    "auto_indent_string_for_top_level"       : "  ",
-    "append_newline_to_render_result"        : False,
+    **ORCHESTRATION_CONFIG_DEFAULT_VALUES,
+    **PAGE_BUILD_CONFIG_DEFAULT_VALUES,
 }
 ROOT_BUILD_CONTEXT_CONFIG_KEYS = set(ROOT_BUILD_CONTEXT_CONFIG_DEFAULT_VALUES)
 

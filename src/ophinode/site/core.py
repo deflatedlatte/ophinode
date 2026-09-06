@@ -1,4 +1,3 @@
-import os
 import sys
 import copy
 from typing import Any, Union
@@ -18,6 +17,11 @@ from ophinode.nodes.html.elements.fullname import (
 )
 from .page_group import PageGroup
 from .page_definition import PageDefinition
+from .config import (
+    ORCHESTRATION_CONFIG_DEFAULT_VALUES,
+    PRESERVE_CONFIG_DEFAULT_VALUES,
+    PAGE_BUILD_CONFIG_DEFAULT_VALUES,
+)
 from .build_contexts import (
     RootBuildContext,
     BuildContext,
@@ -26,30 +30,9 @@ from .build_contexts import (
 )
 
 SITE_CONFIG_DEFAULT_VALUES = {
-    "export_root_path"                       : "./ophinode_exported_files",
-    "default_layout"                         : None,
-    "build_strategy"                         : "sync",
-    "parallel_build_workers"                 : os.cpu_count(),
-    "parallel_build_chunksize"               : 1,
-    "preserve_site_definition_across_builds" : False,
-    "page_default_file_name"                 : "index.html",
-    "page_default_file_name_suffix"          : ".html",
-    "auto_write_exported_page_build_files"   : False,
-    "auto_write_exported_site_build_files"   : True,
-    "return_site_data_after_page_build"      : False,
-    "return_page_data_after_page_build"      : False,
-    "return_misc_data_after_page_build"      : True,
-    "return_built_pages_after_page_build"    : False,
-    "return_expanded_pages_after_page_build" : False,
-    "return_rendered_pages_after_page_build" : False,
-    "return_exported_files_after_page_build" : True,
-    "gather_and_merge_page_build_results"    : True,
-    "html_default_escape_ampersands"         : False,
-    "html_default_escape_tag_delimiters"     : True,
-    "disable_auto_newline_when_rendering"    : False,
-    "disable_auto_indent_when_rendering"     : False,
-    "auto_indent_string_for_top_level"       : "  ",
-    "append_newline_to_render_result"        : False,
+    **ORCHESTRATION_CONFIG_DEFAULT_VALUES,
+    **PRESERVE_CONFIG_DEFAULT_VALUES,
+    **PAGE_BUILD_CONFIG_DEFAULT_VALUES,
 }
 SITE_CONFIG_KEYS = set(SITE_CONFIG_DEFAULT_VALUES)
 
